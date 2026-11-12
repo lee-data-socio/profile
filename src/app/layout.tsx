@@ -22,14 +22,18 @@ const serif = Noto_Serif_KR({
 });
 
 export async function generateMetadata(): Promise<Metadata> {
+  // URL 객체는 "use cache" 결과로 직렬화할 수 없어 바깥에서 붙인다
+  return { metadataBase: new URL(SITE_URL), ...(await siteMetadata()) };
+}
+
+async function siteMetadata(): Promise<Metadata> {
   "use cache";
-  cacheLife("max");
+  cacheLife("hours");
   const profile = await getProfile();
   const title = profile.name_en ? `${profile.name} (${profile.name_en})` : profile.name;
   const description =
     profile.headline || richToPlain(profile.bio).slice(0, 160) || `${profile.name}의 연구·경력 포트폴리오`;
   return {
-    metadataBase: new URL(SITE_URL),
     title: { default: title, template: `%s | ${profile.name}` },
     description,
     openGraph: {
