@@ -10,7 +10,7 @@ import {
   SKILL_CATEGORY_LABEL,
 } from "@/lib/labels";
 
-export type TagGroup = "topic" | "method" | "tool" | "data" | "any";
+export type TagGroup = "topic" | "method" | "tool" | "data" | "any" | "topic_en" | "method_en" | "data_en";
 export type Option = { value: string; label: string };
 
 type FieldBase = {
@@ -74,6 +74,9 @@ const period = (required = true): FieldDef[] => [
   { name: "is_current", label: "현재 진행 중", type: "current", endField: "end_date" },
 ];
 
+/** 영문 주 필드 도움말: 비우면 /en 에 나오지 않는다 (P-10) */
+const EN_REQUIRED_HELP = "비워 두면 영문 페이지(/en)에 이 항목이 나오지 않습니다.";
+
 const NON_TEACHING_TYPES = ["RA", "intern", "job", "other"];
 const TEACHING_TYPES = ["TA", "lecture"];
 
@@ -87,7 +90,7 @@ export const SECTIONS: Record<AdminSectionKey, SectionConfig> = {
     subtitleFields: ["description"],
     fields: [
       { name: "title", label: "주제명", type: "text", required: true },
-      { name: "title_en", label: "주제명 (영문)", type: "text" },
+      { name: "title_en", label: "주제명 (영문)", type: "text", help: EN_REQUIRED_HELP },
       { name: "description", label: "설명", type: "textarea" },
       { name: "description_en", label: "설명 (영문)", type: "textarea" },
       { name: "project_ids", label: "관련 프로젝트", type: "relations", target: "projects" },
@@ -105,7 +108,7 @@ export const SECTIONS: Record<AdminSectionKey, SectionConfig> = {
     dateRange: ["start_date", "end_date"],
     fields: [
       { name: "school", label: "학교", type: "text", required: true, half: true },
-      { name: "school_en", label: "학교 (영문)", type: "text", half: true },
+      { name: "school_en", label: "학교 (영문)", type: "text", half: true, help: "학교·전공 영문을 모두 채워야 영문 페이지에 나옵니다." },
       { name: "major", label: "전공", type: "text", required: true, half: true },
       { name: "major_en", label: "전공 (영문)", type: "text", half: true },
       {
@@ -126,6 +129,7 @@ export const SECTIONS: Record<AdminSectionKey, SectionConfig> = {
       },
       ...period(),
       { name: "advisor", label: "지도교수", type: "text", half: true },
+      { name: "advisor_en", label: "지도교수 (영문)", type: "text", half: true },
       { name: "thesis_title", label: "학위논문 제목", type: "text" },
       { name: "thesis_title_en", label: "학위논문 제목 (영문)", type: "text" },
     ],
@@ -144,15 +148,16 @@ export const SECTIONS: Record<AdminSectionKey, SectionConfig> = {
       { name: "type", label: "유형", type: "select", required: true, half: true, options: opts(PUBLICATION_TYPE_LABEL) },
       { name: "pub_status", label: "상태", type: "select", required: true, half: true, options: opts(PUB_STATUS_LABEL) },
       { name: "title", label: "제목", type: "text", required: true },
-      { name: "title_en", label: "제목 (영문)", type: "text" },
+      { name: "title_en", label: "제목 (영문)", type: "text", help: EN_REQUIRED_HELP },
       {
         name: "authors",
         label: "저자",
         type: "authors",
         required: true,
-        help: "인용에 쓰일 순서대로 입력하고, 본인에 체크하면 굵게 표시됩니다.",
+        help: "인용에 쓰일 순서대로 입력하고, 본인에 체크하면 굵게 표시됩니다. 영문 이름은 영문 페이지 인용에 쓰입니다.",
       },
       { name: "venue", label: "게재지·학회명·학교", type: "text", half: true },
+      { name: "venue_en", label: "게재지·학회명·학교 (영문)", type: "text", half: true },
       { name: "year", label: "연도", type: "number", half: true, help: "준비 중·심사 중이면 비워 둘 수 있습니다." },
       { name: "volume", label: "권(Volume)", type: "text", half: true },
       { name: "issue", label: "호(Issue)", type: "text", half: true },
@@ -186,7 +191,7 @@ export const SECTIONS: Record<AdminSectionKey, SectionConfig> = {
     itemsParent: "project",
     fields: [
       { name: "title", label: "제목", type: "text", required: true },
-      { name: "title_en", label: "제목 (영문)", type: "text" },
+      { name: "title_en", label: "제목 (영문)", type: "text", help: EN_REQUIRED_HELP },
       {
         name: "slug",
         label: "주소(slug)",
@@ -196,9 +201,12 @@ export const SECTIONS: Record<AdminSectionKey, SectionConfig> = {
         help: "/projects/ 뒤에 붙는 주소. 영문 소문자·숫자·하이픈만 쓸 수 있습니다.",
       },
       { name: "summary", label: "한 줄 요약", type: "textarea", help: "목록 카드와 검색 결과 설명에 쓰입니다." },
+      { name: "summary_en", label: "한 줄 요약 (영문)", type: "textarea" },
       ...period(),
       { name: "org", label: "소속", type: "text", half: true },
+      { name: "org_en", label: "소속 (영문)", type: "text", half: true },
       { name: "funder", label: "발주처·지원기관", type: "text", half: true },
+      { name: "funder_en", label: "발주처·지원기관 (영문)", type: "text", half: true },
       {
         name: "role",
         label: "역할",
@@ -206,15 +214,34 @@ export const SECTIONS: Record<AdminSectionKey, SectionConfig> = {
         half: true,
         suggestions: ["연구보조원(RA)", "공동연구원", "책임연구원", "개인 연구"],
       },
+      {
+        name: "role_en",
+        label: "역할 (영문)",
+        type: "text",
+        half: true,
+        suggestions: ["Research Assistant", "Co-Investigator", "Principal Investigator", "Independent research"],
+      },
       { name: "approach", label: "연구 방법 유형", type: "select", half: true, options: opts(APPROACH_LABEL) },
       { name: "research_question", label: "연구 질문", type: "richtext" },
+      { name: "research_question_en", label: "연구 질문 (영문)", type: "richtext" },
       { name: "methods", label: "방법", type: "tags", group: "method", placeholder: "예: 패널 회귀분석, 심층면접" },
+      { name: "methods_en", label: "방법 (영문)", type: "tags", group: "method_en", placeholder: "예: Panel regression" },
       { name: "data_sources", label: "데이터", type: "tags", group: "data", placeholder: "예: 한국복지패널" },
+      { name: "data_sources_en", label: "데이터 (영문)", type: "tags", group: "data_en", placeholder: "예: Korea Welfare Panel Study" },
       { name: "findings", label: "결과", type: "richtext" },
-      { name: "tools", label: "사용 도구", type: "tags", group: "tool", placeholder: "예: Stata, R, NVivo" },
+      { name: "findings_en", label: "결과 (영문)", type: "richtext" },
+      {
+        name: "tools",
+        label: "사용 도구",
+        type: "tags",
+        group: "tool",
+        placeholder: "예: Stata, R, NVivo",
+        help: "영문 페이지에는 한글이 없는 도구 이름만 표시됩니다.",
+      },
       { name: "tags", label: "주제 태그", type: "tags", group: "topic" },
+      { name: "tags_en", label: "주제 태그 (영문)", type: "tags", group: "topic_en", help: "영문 페이지의 주제 필터에 쓰입니다." },
     ],
-    defaults: { methods: [], data_sources: [], tools: [], tags: [] },
+    defaults: { methods: [], methods_en: [], data_sources: [], data_sources_en: [], tools: [], tags: [], tags_en: [] },
   },
 
   experiences: {
@@ -230,7 +257,7 @@ export const SECTIONS: Record<AdminSectionKey, SectionConfig> = {
     typeFilter: { column: "type", values: NON_TEACHING_TYPES },
     fields: [
       { name: "org", label: "기관", type: "text", required: true, half: true },
-      { name: "org_en", label: "기관 (영문)", type: "text", half: true },
+      { name: "org_en", label: "기관 (영문)", type: "text", half: true, help: "기관·직함 영문을 모두 채워야 영문 페이지에 나옵니다." },
       { name: "title", label: "직함", type: "text", required: true, half: true },
       { name: "title_en", label: "직함 (영문)", type: "text", half: true },
       {
@@ -260,6 +287,7 @@ export const SECTIONS: Record<AdminSectionKey, SectionConfig> = {
     typeFilter: { column: "type", values: TEACHING_TYPES },
     fields: [
       { name: "course_name", label: "과목명", type: "text", required: true },
+      { name: "course_name_en", label: "과목명 (영문)", type: "text", help: EN_REQUIRED_HELP },
       {
         name: "type",
         label: "유형",
@@ -269,11 +297,22 @@ export const SECTIONS: Record<AdminSectionKey, SectionConfig> = {
         options: TEACHING_TYPES.map((v) => ({ value: v, label: EXPERIENCE_TYPE_LABEL[v as keyof typeof EXPERIENCE_TYPE_LABEL] })),
       },
       { name: "title", label: "역할", type: "text", required: true, half: true, suggestions: ["교육조교", "강사", "튜터"] },
+      {
+        name: "title_en",
+        label: "역할 (영문)",
+        type: "text",
+        half: true,
+        suggestions: ["Teaching Assistant", "Instructor", "Tutor"],
+      },
       { name: "org", label: "학교·기관", type: "text", required: true, half: true },
+      { name: "org_en", label: "학교·기관 (영문)", type: "text", half: true },
       { name: "semester", label: "학기", type: "text", half: true, placeholder: "2026-1학기" },
+      { name: "semester_en", label: "학기 (영문)", type: "text", half: true, placeholder: "Spring 2026" },
       { name: "supervisor", label: "담당 교수", type: "text", half: true },
+      { name: "supervisor_en", label: "담당 교수 (영문)", type: "text", half: true },
       ...period(),
       { name: "description", label: "설명", type: "textarea" },
+      { name: "description_en", label: "설명 (영문)", type: "textarea" },
     ],
     defaults: { type: "TA", title: "교육조교" },
   },
@@ -294,6 +333,13 @@ export const SECTIONS: Record<AdminSectionKey, SectionConfig> = {
         half: true,
         help: "프로젝트의 방법·도구·주제 태그와 철자가 같아야 근거로 집계됩니다.",
       },
+      {
+        name: "name_en",
+        label: "이름 (영문)",
+        type: "text",
+        half: true,
+        help: "비워 두면 이름에 한글이 없을 때(예: Stata)만 영문 페이지에 나옵니다.",
+      },
       { name: "category", label: "분류", type: "select", required: true, half: true, options: opts(SKILL_CATEGORY_LABEL) },
       { name: "description", label: "설명", type: "textarea" },
       { name: "description_en", label: "설명 (영문)", type: "textarea" },
@@ -310,11 +356,14 @@ export const SECTIONS: Record<AdminSectionKey, SectionConfig> = {
     subtitleFields: ["org", "year"],
     fields: [
       { name: "name", label: "명칭", type: "text", required: true },
-      { name: "name_en", label: "명칭 (영문)", type: "text" },
+      { name: "name_en", label: "명칭 (영문)", type: "text", help: EN_REQUIRED_HELP },
       { name: "org", label: "수여 기관", type: "text", half: true },
-      { name: "year", label: "연도", type: "number", half: true },
+      { name: "org_en", label: "수여 기관 (영문)", type: "text", half: true },
       { name: "amount", label: "금액 (선택)", type: "text", half: true, placeholder: "예: 500만 원" },
+      { name: "amount_en", label: "금액 (영문)", type: "text", half: true, placeholder: "예: KRW 5,000,000" },
+      { name: "year", label: "연도", type: "number", half: true },
       { name: "description", label: "설명", type: "textarea" },
+      { name: "description_en", label: "설명 (영문)", type: "textarea" },
     ],
   },
 
@@ -328,9 +377,11 @@ export const SECTIONS: Record<AdminSectionKey, SectionConfig> = {
     dateRange: ["start_date", "end_date"],
     fields: [
       { name: "name", label: "활동명", type: "text", required: true },
-      { name: "name_en", label: "활동명 (영문)", type: "text" },
+      { name: "name_en", label: "활동명 (영문)", type: "text", help: EN_REQUIRED_HELP },
       { name: "org", label: "단체", type: "text", half: true },
+      { name: "org_en", label: "단체 (영문)", type: "text", half: true },
       { name: "role", label: "역할", type: "text", half: true },
+      { name: "role_en", label: "역할 (영문)", type: "text", half: true },
       ...period(false),
     ],
   },

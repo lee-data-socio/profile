@@ -18,9 +18,18 @@ const CONTACT_FIELDS = [
   { key: "website", label: "기타 웹사이트", placeholder: "https://" },
 ] as const;
 
-export function ProfileForm({ profile, interestSuggestions }: { profile: Profile; interestSuggestions: string[] }) {
+export function ProfileForm({
+  profile,
+  interestSuggestions,
+  interestEnSuggestions,
+}: {
+  profile: Profile;
+  interestSuggestions: string[];
+  interestEnSuggestions: string[];
+}) {
   const [state, formAction, pending] = useActionState(saveProfile, { ok: false } as FormState);
   const [interests, setInterests] = useState(profile.interests);
+  const [interestsEn, setInterestsEn] = useState(profile.interests_en ?? []);
   const errors = state.errors ?? {};
 
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
@@ -35,7 +44,7 @@ export function ProfileForm({ profile, interestSuggestions }: { profile: Profile
         <FieldShell id="p-name" label="이름" required error={errors.name}>
           <input id="p-name" name="name" defaultValue={profile.name} className={inputCls} aria-invalid={errors.name ? true : undefined} />
         </FieldShell>
-        <FieldShell id="p-name_en" label="이름 (영문)">
+        <FieldShell id="p-name_en" label="이름 (영문)" help="영문 페이지(/en)에 쓰입니다. 비우면 한글 이름이 그대로 나옵니다.">
           <input id="p-name_en" name="name_en" defaultValue={profile.name_en ?? ""} className={inputCls} placeholder="Sangwon Lee" />
         </FieldShell>
         <FieldShell id="p-headline" label="헤드라인" className="sm:col-span-2" help="예: OO대학교 사회학과 석사과정 · 노동·불평등·조사방법">
@@ -52,6 +61,15 @@ export function ProfileForm({ profile, interestSuggestions }: { profile: Profile
         </FieldShell>
         <FieldShell id="p-interests" label="연구 관심사 키워드" className="sm:col-span-2" help="홈 상단에 태그로 표시됩니다.">
           <TagInput id="p-interests" name="interests" value={interests} onChange={setInterests} suggestions={interestSuggestions} />
+        </FieldShell>
+        <FieldShell id="p-interests_en" label="연구 관심사 키워드 (영문)" className="sm:col-span-2">
+          <TagInput
+            id="p-interests_en"
+            name="interests_en"
+            value={interestsEn}
+            onChange={setInterestsEn}
+            suggestions={interestEnSuggestions}
+          />
         </FieldShell>
       </div>
 

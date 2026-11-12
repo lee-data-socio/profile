@@ -57,10 +57,11 @@ export type TagSuggestions = Record<TagGroup, string[]>;
 export async function getTagSuggestions(): Promise<TagSuggestions> {
   const db = adminClient();
   const [projects, items, skills, profile] = await Promise.all([
-    db.from("projects").select("methods, tools, tags, data_sources"),
+    // 영문 컬럼(0002)이 아직 없어도 실패하지 않도록 * 로 읽는다
+    db.from("projects").select("*"),
     db.from("entry_items").select("tags"),
     db.from("skills").select("name, category"),
-    db.from("profile").select("interests").limit(1).maybeSingle(),
+    db.from("profile").select("*").limit(1).maybeSingle(),
   ]);
   const sets: Record<TagGroup, Set<string>> = {
     topic: new Set(),
@@ -68,18 +69,25 @@ export async function getTagSuggestions(): Promise<TagSuggestions> {
     tool: new Set(),
     data: new Set(),
     any: new Set(),
+    topic_en: new Set(),
+    method_en: new Set(),
+    data_en: new Set(),
   };
   for (const p of projects.data ?? []) {
     (p.methods ?? []).forEach((t: string) => sets.method.add(t));
     (p.tools ?? []).forEach((t: string) => sets.tool.add(t));
     (p.tags ?? []).forEach((t: string) => sets.topic.add(t));
     (p.data_sources ?? []).forEach((t: string) => sets.data.add(t));
+    (p.methods_en ?? []).forEach((t: string) => sets.method_en.add(t));
+    (p.tags_en ?? []).forEach((t: string) => sets.topic_en.add(t));
+    (p.data_sources_en ?? []).forEach((t: string) => sets.data_en.add(t));
   }
   for (const s of skills.data ?? []) {
     if (s.category === "tool" || s.category === "language") sets.tool.add(s.name);
     else sets.method.add(s.name);
   }
   (profile.data?.interests ?? []).forEach((t: string) => sets.topic.add(t));
+  (profile.data?.interests_en ?? []).forEach((t: string) => sets.topic_en.add(t));
   for (const i of items.data ?? []) (i.tags ?? []).forEach((t: string) => sets.any.add(t));
   // 업무 항목 태그는 모든 그룹을 제안 (역량 근거로 쓰이므로)
   for (const g of ["topic", "method", "tool"] as const) sets[g].forEach((t) => sets.any.add(t));
@@ -91,6 +99,9 @@ export async function getTagSuggestions(): Promise<TagSuggestions> {
     tool: sorted(sets.tool),
     data: sorted(sets.data),
     any: sorted(sets.any),
+    topic_en: sorted(sets.topic_en),
+    method_en: sorted(sets.method_en),
+    data_en: sorted(sets.data_en),
   };
 }
 

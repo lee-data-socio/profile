@@ -3,6 +3,11 @@ import Link from "next/link";
 import { getCounts } from "@/lib/admin-data";
 import { ADMIN_SECTION_ORDER, SECTIONS } from "@/lib/sections";
 
+
+// 관리자 화면은 매 요청마다 세션을 확인하므로(adminPage → connection) 즉시 내비게이션 검증에서 제외한다.
+// layout 의 instant = false 는 page 세그먼트까지 덮지 않아 페이지마다 둔다.
+export const instant = false;
+
 export default async function AdminHome() {
   await adminPage();
   const counts = await getCounts();

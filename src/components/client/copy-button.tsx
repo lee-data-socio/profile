@@ -1,8 +1,19 @@
 "use client";
 
 import { useState } from "react";
+import { PILL } from "@/components/ui";
 
-export function CopyButton({ text, label }: { text: string; label: string }) {
+export function CopyButton({
+  text,
+  label,
+  copiedLabel,
+  promptLabel,
+}: {
+  text: string;
+  label: string;
+  copiedLabel: string;
+  promptLabel: string;
+}) {
   const [copied, setCopied] = useState(false);
   return (
     <button
@@ -13,13 +24,13 @@ export function CopyButton({ text, label }: { text: string; label: string }) {
           setCopied(true);
           setTimeout(() => setCopied(false), 1600);
         } catch {
-          window.prompt("아래 내용을 복사하세요", text);
+          window.prompt(promptLabel, text);
         }
       }}
-      className="no-print rounded border border-line px-2 py-0.5 text-xs text-muted hover:border-accent hover:text-accent"
+      className={PILL}
       aria-live="polite"
     >
-      {copied ? "복사됨" : label}
+      {copied ? copiedLabel : label}
     </button>
   );
 }

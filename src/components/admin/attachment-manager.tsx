@@ -271,6 +271,37 @@ export function AttachmentManager({
                     />
                   </label>
                   <label className="text-xs text-subtle">
+                    표시 이름 (영문)
+                    <input
+                      defaultValue={f.display_name_en ?? ""}
+                      onBlur={(e) =>
+                        e.target.value.trim() !== (f.display_name_en ?? "") && patchFile(f.id, { display_name_en: e.target.value })
+                      }
+                      className={`${inputCls} mt-1`}
+                      placeholder="비우면 한글 없는 표시 이름·파일명, 없으면 파일 종류(예: Report)"
+                    />
+                  </label>
+                  <label className="text-xs text-subtle sm:col-span-2">
+                    설명
+                    <input
+                      defaultValue={f.description ?? ""}
+                      onBlur={(e) => e.target.value.trim() !== (f.description ?? "") && patchFile(f.id, { description: e.target.value })}
+                      className={`${inputCls} mt-1`}
+                      placeholder="선택"
+                    />
+                  </label>
+                  <label className="text-xs text-subtle sm:col-span-2">
+                    설명 (영문)
+                    <input
+                      defaultValue={f.description_en ?? ""}
+                      onBlur={(e) =>
+                        e.target.value.trim() !== (f.description_en ?? "") && patchFile(f.id, { description_en: e.target.value })
+                      }
+                      className={`${inputCls} mt-1`}
+                      placeholder="선택"
+                    />
+                  </label>
+                  <label className="text-xs text-subtle">
                     종류
                     <select
                       value={f.kind}
@@ -283,15 +314,6 @@ export function AttachmentManager({
                         </option>
                       ))}
                     </select>
-                  </label>
-                  <label className="text-xs text-subtle sm:col-span-2">
-                    설명
-                    <input
-                      defaultValue={f.description ?? ""}
-                      onBlur={(e) => e.target.value.trim() !== (f.description ?? "") && patchFile(f.id, { description: e.target.value })}
-                      className={`${inputCls} mt-1`}
-                      placeholder="선택"
-                    />
                   </label>
                   <label className="text-xs text-subtle">
                     공개 여부

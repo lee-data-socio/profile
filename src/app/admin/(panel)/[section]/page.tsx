@@ -28,6 +28,11 @@ function display(field: string, v: unknown): string {
   return String(v);
 }
 
+
+// 관리자 화면은 매 요청마다 세션을 확인하므로(adminPage → connection) 즉시 내비게이션 검증에서 제외한다.
+// layout 의 instant = false 는 page 세그먼트까지 덮지 않아 페이지마다 둔다.
+export const instant = false;
+
 export default async function SectionListPage({ params, searchParams }: PageProps<"/admin/[section]">) {
   await adminPage();
   const { section } = await params;

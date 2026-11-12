@@ -1,9 +1,14 @@
 import { ImageResponse } from "next/og";
 import { getProfile } from "@/lib/data";
+import { getDict, isLang, localizeProfile } from "@/lib/i18n";
 
-export const alt = "프로필";
-export const size = { width: 1200, height: 630 };
-export const contentType = "image/png";
+const size = { width: 1200, height: 630 };
+
+/** 언어별 대체 텍스트를 주려고 generateImageMetadata 를 쓴다 (주소: /{lang}/opengraph-image/card) */
+export function generateImageMetadata({ params }: { params: { lang: string } }) {
+  const alt = getDict(isLang(params.lang) ? params.lang : "ko").ogImageAlt;
+  return [{ id: "card", alt, size, contentType: "image/png" }];
+}
 
 /** 한글이 깨지지 않도록 필요한 글자만 담은 Noto Sans KR 서브셋을 Google Fonts 에서 받아 온다. */
 async function loadFontBase64(text: string): Promise<string | null> {
@@ -21,8 +26,9 @@ async function loadFontBase64(text: string): Promise<string | null> {
   }
 }
 
-export default async function OpengraphImage() {
-  const profile = await getProfile();
+export default async function OpengraphImage({ params }: { params: Promise<{ lang: string }> }) {
+  const { lang } = await params;
+  const profile = localizeProfile(await getProfile(), isLang(lang) ? lang : "ko");
   const name = profile.name;
   const sub = [profile.name_en, profile.headline].filter(Boolean).join(" · ");
   const tags = profile.interests.slice(0, 4).join("  ·  ");

@@ -5,6 +5,11 @@ import { ProfileForm, PhotoUploader } from "@/components/admin/profile-form";
 import { AttachmentManager } from "@/components/admin/attachment-manager";
 import { SectionOrderEditor } from "@/components/admin/section-order-editor";
 
+
+// 관리자 화면은 매 요청마다 세션을 확인하므로(adminPage → connection) 즉시 내비게이션 검증에서 제외한다.
+// layout 의 instant = false 는 page 세그먼트까지 덮지 않아 페이지마다 둔다.
+export const instant = false;
+
 export default async function ProfileAdminPage() {
   await adminPage();
   const [profile, tags] = await Promise.all([getProfileAdmin(), getTagSuggestions()]);
@@ -22,7 +27,7 @@ export default async function ProfileAdminPage() {
 
       <section className="mt-10">
         <h2 className="mb-3 font-bold">기본 정보</h2>
-        <ProfileForm profile={profile} interestSuggestions={tags.topic} />
+        <ProfileForm profile={profile} interestSuggestions={tags.topic} interestEnSuggestions={tags.topic_en} />
       </section>
 
       <section className="mt-12">

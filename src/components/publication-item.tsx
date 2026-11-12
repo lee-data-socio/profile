@@ -1,52 +1,122 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import type { Publication } from "@/lib/types";
-import { asaCitation, asaCitationText, bibtex, doiUrl } from "@/lib/format";
-import { PUB_STATUS_LABEL } from "@/lib/labels";
-import { CopyButton } from "@/components/client/copy-button";
+import { asaCitation, asaCitationText, authorParts, bibtex, doiUrl, venueDetail } from "@/lib/format";
+import { getDict, localePath, type Lang } from "@/lib/i18n";
+import { ExternalMark, PILL } from "@/components/ui";
+import { CiteToggle } from "@/components/client/cite-toggle";
 
-export function Citation({ pub, linkTitle = true }: { pub: Publication; linkTitle?: boolean }) {
-  const parts = asaCitation(pub);
+const isFinal = (p: Publication) => p.pub_status === "published" || p.pub_status === "presented";
+
+/** ASA 인용문 (화면용: 끝의 DOI·URL 은 빼고 버튼으로 보여 준다). pub 은 localizePublication 을 거친 값 */
+export function Citation({ pub, lang }: { pub: Publication; lang: Lang }) {
   return (
     <p className="leading-relaxed">
-      {parts.map((part, i) => {
+      {asaCitation(pub, lang, false).map((part, i) => {
         let node: ReactNode = part.text;
-        if (part.bold) node = <strong className="font-bold">{node}</strong>;
+        if (part.bold) node = <strong className="font-bold text-fg">{node}</strong>;
         if (part.italic) node = <em>{node}</em>;
-        // 제목 조각에 상세 페이지 링크
-        if (linkTitle && part.text.startsWith("“")) {
-          node = (
-            <Link href={`/publications/${pub.slug}`} className="hover:text-accent hover:underline underline-offset-4">
-              {node}
-            </Link>
-          );
-        }
         return <span key={i}>{node}</span>;
       })}
     </p>
   );
 }
 
-export function PublicationItem({ pub }: { pub: Publication }) {
+/** 저자 목록 (본인 굵게) */
+export function Authors({ pub, lang }: { pub: Publication; lang: Lang }) {
   return (
-    <li className="py-3">
-      <Citation pub={pub} />
-      <div className="mt-1.5 flex flex-wrap items-center gap-2 text-xs text-subtle">
-        {pub.pub_status !== "published" && pub.pub_status !== "presented" && (
-          <span className="rounded bg-accent-soft px-1.5 py-0.5 text-accent">{PUB_STATUS_LABEL[pub.pub_status]}</span>
+    <>
+      {authorParts(pub, lang).map((part, i) =>
+        part.bold ? (
+          <strong key={i} className="font-semibold text-fg">
+            {part.text}
+          </strong>
+        ) : (
+          <span key={i}>{part.text}</span>
+        ),
+      )}
+    </>
+  );
+}
+
+/** 게재지 + 권·호·쪽 */
+export function Venue({ pub }: { pub: Publication }) {
+  if (!pub.venue) return null;
+  const detail = venueDetail(pub);
+  return (
+    <>
+      <em>{pub.venue}</em>
+      {detail && <span className="tabular-nums"> {detail}</span>}
+    </>
+  );
+}
+
+/** DOI / 원문 링크 버튼 */
+export function SourceLinks({ pub, lang }: { pub: Publication; lang: Lang }) {
+  const t = getDict(lang);
+  return (
+    <>
+      {pub.doi && (
+        <a href={doiUrl(pub.doi)} className={PILL} target="_blank" rel="noopener noreferrer">
+          {t.viewDoi} <ExternalMark />
+        </a>
+      )}
+      {!pub.doi && pub.url && (
+        <a href={pub.url} className={PILL} target="_blank" rel="noopener noreferrer">
+          {t.sourceLink} <ExternalMark />
+        </a>
+      )}
+    </>
+  );
+}
+
+export function StatusBadge({ pub, lang }: { pub: Publication; lang: Lang }) {
+  if (isFinal(pub)) return null;
+  return (
+    <span className="inline-flex items-center rounded-md bg-accent-soft px-2 py-0.5 text-xs font-medium text-accent">
+      {getDict(lang).pubStatus[pub.pub_status]}
+    </span>
+  );
+}
+
+export function citeLabels(lang: Lang) {
+  const t = getDict(lang);
+  return { cite: t.cite, ...t.copy };
+}
+
+/**
+ * 논문 목록 한 줄. 왼쪽에 연도, 오른쪽에 제목 → 저자 → 게재지 → 버튼(DOI·인용) 순서.
+ * showType: 유형별로 묶지 않은 목록(홈)에서 게재지 앞에 유형을 붙인다.
+ */
+export function PublicationItem({ pub, lang, showType = false }: { pub: Publication; lang: Lang; showType?: boolean }) {
+  const t = getDict(lang);
+  const venue = <Venue pub={pub} />;
+  return (
+    <li className="grid gap-x-6 gap-y-1 py-5 sm:grid-cols-[4.5rem_1fr]">
+      <p className="text-sm tabular-nums text-subtle sm:pt-0.5">{pub.year ?? "—"}</p>
+      <div className="min-w-0">
+        <h3 className="font-heading text-[1.0625rem] font-bold leading-snug">
+          <Link
+            href={localePath(lang, `/publications/${pub.slug}`)}
+            className="decoration-accent/40 underline-offset-4 hover:text-accent hover:underline"
+          >
+            {pub.title}
+          </Link>
+        </h3>
+        <p className="mt-1.5 text-sm text-muted">
+          <Authors pub={pub} lang={lang} />
+        </p>
+        {(showType || pub.venue) && (
+          <p className="mt-0.5 text-sm text-muted">
+            {showType && <span className="text-subtle">{t.pubType[pub.type]}</span>}
+            {showType && pub.venue && <span className="text-subtle"> · </span>}
+            {venue}
+          </p>
         )}
-        {pub.doi && (
-          <a href={doiUrl(pub.doi)} className="text-accent hover:underline" target="_blank" rel="noopener noreferrer">
-            DOI
-          </a>
-        )}
-        {!pub.doi && pub.url && (
-          <a href={pub.url} className="text-accent hover:underline" target="_blank" rel="noopener noreferrer">
-            링크
-          </a>
-        )}
-        <CopyButton text={asaCitationText(pub)} label="ASA 복사" />
-        <CopyButton text={bibtex(pub)} label="BibTeX 복사" />
+        <CiteToggle asa={asaCitationText(pub, lang)} bibtex={bibtex(pub, lang)} labels={citeLabels(lang)}>
+          <StatusBadge pub={pub} lang={lang} />
+          <SourceLinks pub={pub} lang={lang} />
+        </CiteToggle>
       </div>
     </li>
   );

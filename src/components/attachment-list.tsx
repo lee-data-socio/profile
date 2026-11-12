@@ -1,11 +1,13 @@
 import type { Attachment } from "@/lib/types";
-import { ATTACHMENT_KIND_LABEL, VERSION_TYPE_LABEL } from "@/lib/labels";
 import { fileTypeLabel, isImage, isPdf } from "@/lib/files";
 import { formatBytes } from "@/lib/format";
+import { getDict, type Lang } from "@/lib/i18n";
 import { PdfPreview } from "@/components/client/file-preview";
 
-export function AttachmentList({ files }: { files: Attachment[] }) {
+/** files 는 localizeAttachment 를 거친 값 */
+export function AttachmentList({ files, lang }: { files: Attachment[]; lang: Lang }) {
   if (!files.length) return null;
+  const t = getDict(lang);
   return (
     <ul className="divide-y divide-line rounded-lg border border-line bg-surface">
       {files.map((f) => {
@@ -35,8 +37,8 @@ export function AttachmentList({ files }: { files: Attachment[] }) {
                 <div className="min-w-0">
                   <p className="font-medium">{f.display_name}</p>
                   <p className="mt-0.5 text-xs text-subtle">
-                    {ATTACHMENT_KIND_LABEL[f.kind]}
-                    {f.version_type && ` · ${VERSION_TYPE_LABEL[f.version_type]}`} · {fileTypeLabel(f.original_name)} ·{" "}
+                    {t.attachmentKind[f.kind]}
+                    {f.version_type && ` · ${t.versionType[f.version_type]}`} · {fileTypeLabel(f.original_name)} ·{" "}
                     {formatBytes(f.size_bytes)}
                   </p>
                   {f.description && <p className="mt-1 text-sm text-muted">{f.description}</p>}
@@ -45,12 +47,12 @@ export function AttachmentList({ files }: { files: Attachment[] }) {
               <a
                 href={href}
                 className="no-print shrink-0 rounded-md border border-line px-3 py-1.5 text-sm hover:border-accent hover:text-accent"
-                aria-label={`${f.display_name} 다운로드 (${fileTypeLabel(f.original_name)}, ${formatBytes(f.size_bytes)})`}
+                aria-label={t.downloadLabel(f.display_name, fileTypeLabel(f.original_name), formatBytes(f.size_bytes))}
               >
-                다운로드
+                {t.download}
               </a>
             </div>
-            {isPdf(f.mime) && <PdfPreview src={inline} title={f.display_name} />}
+            {isPdf(f.mime) && <PdfPreview src={inline} title={f.display_name} labels={t.preview} />}
           </li>
         );
       })}

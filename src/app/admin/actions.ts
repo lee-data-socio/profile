@@ -176,9 +176,16 @@ function parseField(f: FieldDef, fd: FormData, errors: Record<string, string>): 
       return empty ? null : doc;
     }
     case "authors": {
-      const list = parseJson<{ name?: unknown; is_me?: unknown }[]>(raw, []);
+      const list = parseJson<{ name?: unknown; name_en?: unknown; is_me?: unknown }[]>(raw, []);
       const authors = (Array.isArray(list) ? list : [])
-        .map((a) => ({ name: typeof a.name === "string" ? a.name.trim() : "", is_me: a.is_me === true }))
+        .map((a) => {
+          const nameEn = typeof a.name_en === "string" ? a.name_en.trim() : "";
+          return {
+            name: typeof a.name === "string" ? a.name.trim() : "",
+            ...(nameEn ? { name_en: nameEn } : {}),
+            is_me: a.is_me === true,
+          };
+        })
         .filter((a) => a.name);
       need(authors.length === 0);
       return authors;
@@ -351,6 +358,7 @@ export async function saveProfile(_prev: FormState, fd: FormData): Promise<FormS
       bio: bio && !isEmptyRich(bio) ? bio : null,
       bio_en: bioEn && !isEmptyRich(bioEn) ? bioEn : null,
       interests: cleanTags(parseJson(str(fd, "interests"), [])),
+      interests_en: cleanTags(parseJson(str(fd, "interests_en"), [])),
       contacts,
     })
     .eq("singleton", true);
@@ -408,7 +416,9 @@ export async function setPhotoPath(path: string | null) {
 
 export type EntryItemInput = {
   text: string;
+  text_en: string;
   metrics: string[];
+  metrics_en: string[];
   evidence_url: string;
   tags: string[];
   last_used: string; // YYYY-MM
@@ -432,7 +442,9 @@ export async function saveEntryItem(
     parent_type: parentType,
     parent_id: parentId,
     text: text.slice(0, 1000),
+    text_en: input.text_en?.trim().slice(0, 1000) || null,
     metrics: cleanTags(input.metrics),
+    metrics_en: cleanTags(input.metrics_en),
     evidence_url: evidence || null,
     tags: cleanTags(input.tags),
     last_used: monthToDate(input.last_used),
@@ -578,7 +590,9 @@ export async function registerAttachment(input: {
 
 export async function updateAttachment(
   id: string,
-  patch: Partial<Pick<Attachment, "display_name" | "description" | "kind" | "visibility" | "version_type">>,
+  patch: Partial<
+    Pick<Attachment, "display_name" | "display_name_en" | "description" | "description_en" | "kind" | "visibility" | "version_type">
+  >,
 ): Promise<{ ok: true; attachment: Attachment } | { ok: false; error: string }> {
   await requireOwner();
   if (!UUID_RE.test(id)) return { ok: false, error: "잘못된 요청입니다." };
@@ -588,7 +602,9 @@ export async function updateAttachment(
     if (!v) return { ok: false, error: "표시 이름을 입력하세요." };
     row.display_name = v.slice(0, 200);
   }
+  if (patch.display_name_en !== undefined) row.display_name_en = patch.display_name_en?.trim().slice(0, 200) || null;
   if (patch.description !== undefined) row.description = patch.description?.trim() || null;
+  if (patch.description_en !== undefined) row.description_en = patch.description_en?.trim() || null;
   if (patch.kind !== undefined) row.kind = patch.kind;
   if (patch.visibility !== undefined) {
     if (!["public", "private"].includes(patch.visibility)) return { ok: false, error: "잘못된 공개 설정입니다." };

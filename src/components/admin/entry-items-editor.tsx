@@ -7,7 +7,7 @@ import { dateToMonth, formatMonth } from "@/lib/format";
 import { SortableList } from "@/components/admin/sortable";
 import { TagInput, btnCls, dangerBtnCls, inputCls, primaryBtnCls } from "@/components/admin/fields";
 
-const EMPTY: EntryItemInput = { text: "", metrics: [], evidence_url: "", tags: [], last_used: "" };
+const EMPTY: EntryItemInput = { text: "", text_en: "", metrics: [], metrics_en: [], evidence_url: "", tags: [], last_used: "" };
 
 /**
  * 업무 항목(사실 단위) 입력 (A-03). 문장 하나 + 선택 필드(수치, 근거 링크, 태그, 최근 사용).
@@ -66,6 +66,7 @@ export function EntryItemsEditor({
                 {handle}
                 <div className="min-w-0 flex-1 text-sm">
                   <p>{item.text}</p>
+                  {item.text_en && <p className="mt-0.5 text-muted">{item.text_en}</p>}
                   <p className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-xs text-subtle">
                     {item.metrics.length > 0 && <span>수치: {item.metrics.join(", ")}</span>}
                     {item.tags.length > 0 && <span className="text-accent">#{item.tags.join(" #")}</span>}
@@ -138,7 +139,9 @@ function ItemForm({
     item
       ? {
           text: item.text,
+          text_en: item.text_en ?? "",
           metrics: item.metrics,
+          metrics_en: item.metrics_en ?? [],
           evidence_url: item.evidence_url ?? "",
           tags: item.tags,
           last_used: dateToMonth(item.last_used),
@@ -170,6 +173,16 @@ function ItemForm({
         className={inputCls}
         autoFocus
       />
+      <label className="block text-xs text-subtle" htmlFor={`ei-text_en-${idp}`}>
+        문장 (영문) — 비워 두면 영문 페이지(/en)에 이 항목이 나오지 않습니다
+      </label>
+      <textarea
+        id={`ei-text_en-${idp}`}
+        rows={2}
+        value={v.text_en}
+        onChange={(e) => setV({ ...v, text_en: e.target.value })}
+        className={inputCls}
+      />
       <div className="grid gap-3 sm:grid-cols-2">
         <div>
           <label className="block text-xs text-subtle" htmlFor={`ei-metrics-${idp}`}>
@@ -177,6 +190,19 @@ function ItemForm({
           </label>
           <div className="mt-1">
             <TagInput id={`ei-metrics-${idp}`} value={v.metrics} onChange={(metrics) => setV({ ...v, metrics })} placeholder="예: 표본 1,200명" />
+          </div>
+        </div>
+        <div>
+          <label className="block text-xs text-subtle" htmlFor={`ei-metrics_en-${idp}`}>
+            수치 (영문, 선택)
+          </label>
+          <div className="mt-1">
+            <TagInput
+              id={`ei-metrics_en-${idp}`}
+              value={v.metrics_en}
+              onChange={(metrics_en) => setV({ ...v, metrics_en })}
+              placeholder="예: N = 1,200"
+            />
           </div>
         </div>
         <div>

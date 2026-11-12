@@ -192,6 +192,13 @@ export function AuthorsEditor({
               placeholder="성 이름 (예: Lee, Sangwon / 이상원)"
               className={`${inputCls} min-w-0 flex-1`}
             />
+            <input
+              aria-label={`${i + 1}번째 저자 영문 이름`}
+              value={a.name_en ?? ""}
+              onChange={(e) => update(i, { name_en: e.target.value })}
+              placeholder="영문 이름 (선택)"
+              className={`${inputCls} min-w-0 flex-1`}
+            />
             <label className="flex items-center gap-1 text-xs">
               <input type="checkbox" checked={Boolean(a.is_me)} onChange={(e) => update(i, { is_me: e.target.checked })} />
               본인

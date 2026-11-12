@@ -13,17 +13,14 @@ import type {
   Skill,
   SkillStat,
 } from "@/lib/types";
-import {
-  EXPERIENCE_TYPE_LABEL,
-  PUBLICATION_TYPE_LABEL,
-  PUBLICATION_TYPE_ORDER,
-  SKILL_CATEGORY_LABEL,
-} from "@/lib/labels";
 import { formatMonth, formatPeriod } from "@/lib/format";
-import { EmptyNote, Section } from "@/components/ui";
+import { getDict, localePath, type Lang } from "@/lib/i18n";
+import { EmptyNote, ExternalMark, Linkified, Section } from "@/components/ui";
 import { ProjectCard } from "@/components/project-card";
 import { PublicationItem } from "@/components/publication-item";
 import { EmailReveal } from "@/components/client/email-reveal";
+
+/* 모든 섹션은 localize* 를 거친 행을 받는다 (영어면 영문 값으로 바뀌고, 영문이 없는 항목은 빠져 있음). */
 
 const HOME_LIMIT = 5;
 
@@ -41,95 +38,110 @@ export function InterestsSection({
   interests,
   projects,
   publications,
+  lang,
 }: {
   interests: ResearchInterest[];
   projects: Project[];
   publications: Publication[];
+  lang: Lang;
 }) {
   if (!interests.length) return null;
+  const t = getDict(lang);
+  const relLink = "text-accent hover:underline underline-offset-4";
   return (
-    <Section id="interests" title="연구 관심사">
-      <div className="grid gap-4 sm:grid-cols-2">
+    <Section id="interests" title={t.section.interests}>
+      <ul className="divide-y divide-line">
         {interests.map((it) => {
           const relProjects = projects.filter((p) => it.project_ids.includes(p.id));
           const relPubs = publications.filter((p) => it.publication_ids.includes(p.id));
           return (
-            <article key={it.id} className="rounded-xl border border-line bg-surface p-5">
-              <h3 className="font-heading text-lg font-bold">{it.title}</h3>
-              {it.description && <p className="mt-2 text-sm leading-relaxed text-muted">{it.description}</p>}
-              {(relProjects.length > 0 || relPubs.length > 0) && (
-                <ul className="mt-3 space-y-1 text-sm">
-                  {relProjects.map((p) => (
-                    <li key={p.id}>
-                      <span className="text-subtle">프로젝트 · </span>
-                      <Link href={`/projects/${p.slug}`} className="text-accent hover:underline underline-offset-4">
-                        {p.title}
-                      </Link>
-                    </li>
-                  ))}
-                  {relPubs.map((p) => (
-                    <li key={p.id}>
-                      <span className="text-subtle">논문 · </span>
-                      <Link href={`/publications/${p.slug}`} className="text-accent hover:underline underline-offset-4">
-                        {p.title}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </article>
+            <li key={it.id} className="grid gap-2 py-5 first:pt-1 sm:grid-cols-[12rem_1fr] sm:gap-8">
+              <h3 className="font-heading text-base font-bold leading-snug sm:text-[1.0625rem]">{it.title}</h3>
+              <div className="min-w-0">
+                {it.description && (
+                  <p className="text-[15px] leading-7 text-muted">
+                    <Linkified text={it.description} />
+                  </p>
+                )}
+                {(relProjects.length > 0 || relPubs.length > 0) && (
+                  <ul className="mt-3 space-y-1 text-sm">
+                    {relProjects.map((p) => (
+                      <li key={p.id}>
+                        <span className="text-subtle">{t.relProject} · </span>
+                        <Link href={localePath(lang, `/projects/${p.slug}`)} className={relLink}>
+                          {p.title}
+                        </Link>
+                      </li>
+                    ))}
+                    {relPubs.map((p) => (
+                      <li key={p.id}>
+                        <span className="text-subtle">{t.relPublication} · </span>
+                        <Link href={localePath(lang, `/publications/${p.slug}`)} className={relLink}>
+                          {p.title}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </li>
           );
         })}
-      </div>
+      </ul>
     </Section>
   );
 }
 
 /* ------------------------------------------------------------------ */
 
-export function PublicationsSection({ publications }: { publications: Publication[] }) {
+/** 연도 역순, 연도 없는(준비 중) 항목은 위로 */
+export function byYearDesc(a: Publication, b: Publication): number {
+  return (b.year ?? 9999) - (a.year ?? 9999) || a.sort_order - b.sort_order;
+}
+
+export function PublicationsSection({ publications, lang }: { publications: Publication[]; lang: Lang }) {
   if (!publications.length) return null;
-  const groups = PUBLICATION_TYPE_ORDER.map((type) => ({
-    type,
-    items: publications.filter((p) => p.type === type),
-  })).filter((g) => g.items.length);
-  const shown = publications.length > HOME_LIMIT * 2;
+  const t = getDict(lang);
+  const shown = [...publications].sort(byYearDesc).slice(0, HOME_LIMIT);
   return (
     <Section
       id="publications"
-      title="논문·학술발표"
-      action={<MoreLink href="/publications">전체 {publications.length}건</MoreLink>}
+      title={t.section.publications}
+      action={
+        publications.length > shown.length && (
+          <MoreLink href={localePath(lang, "/publications")}>{t.more(publications.length)}</MoreLink>
+        )
+      }
     >
-      <div className="space-y-6">
-        {groups.map((g) => (
-          <div key={g.type}>
-            <h3 className="text-sm font-bold text-muted">{PUBLICATION_TYPE_LABEL[g.type]}</h3>
-            <ul className="divide-y divide-line">
-              {(shown ? g.items.slice(0, 3) : g.items).map((p) => (
-                <PublicationItem key={p.id} pub={p} />
-              ))}
-            </ul>
-          </div>
+      <ul className="divide-y divide-line">
+        {shown.map((p) => (
+          <PublicationItem key={p.id} pub={p} lang={lang} showType />
         ))}
-      </div>
+      </ul>
     </Section>
   );
 }
 
 /* ------------------------------------------------------------------ */
 
-export function ProjectsSection({ projects }: { projects: Project[] }) {
+export function ProjectsSection({ projects, lang }: { projects: Project[]; lang: Lang }) {
   if (!projects.length) return null;
+  const t = getDict(lang);
+  const shown = projects.slice(0, HOME_LIMIT - 1);
   return (
     <Section
       id="projects"
-      title="연구 프로젝트"
-      action={<MoreLink href="/projects">전체 {projects.length}건</MoreLink>}
+      title={t.section.projects}
+      action={
+        projects.length > shown.length && (
+          <MoreLink href={localePath(lang, "/projects")}>{t.more(projects.length)}</MoreLink>
+        )
+      }
     >
-      <ul className="grid gap-4 sm:grid-cols-2">
-        {projects.slice(0, HOME_LIMIT - 1).map((p) => (
+      <ul className={`grid gap-4 ${shown.length > 1 ? "sm:grid-cols-2" : ""}`}>
+        {shown.map((p) => (
           <li key={p.id}>
-            <ProjectCard project={p} />
+            <ProjectCard project={p} lang={lang} />
           </li>
         ))}
       </ul>
@@ -151,30 +163,31 @@ function TimelineRow({
   children?: ReactNode;
 }) {
   return (
-    <li className="grid gap-1 py-4 sm:grid-cols-[9.5rem_1fr] sm:gap-6">
-      <p className="text-sm tabular-nums text-subtle">{period}</p>
-      <div>
-        <h3 className="font-bold">{title}</h3>
-        {subtitle && <p className="mt-0.5 text-sm text-muted">{subtitle}</p>}
+    <li className="grid gap-1 py-5 first:pt-1 sm:grid-cols-[9.5rem_1fr] sm:gap-6">
+      <p className="text-sm tabular-nums text-subtle sm:pt-0.5">{period}</p>
+      <div className="min-w-0">
+        <h3 className="font-heading font-bold leading-snug">{title}</h3>
+        {subtitle && <p className="mt-1 text-sm text-muted">{subtitle}</p>}
         {children}
       </div>
     </li>
   );
 }
 
-export function EducationSection({ education }: { education: Education[] }) {
+export function EducationSection({ education, lang }: { education: Education[]; lang: Lang }) {
   if (!education.length) return null;
+  const t = getDict(lang);
   return (
-    <Section id="education" title="학력">
+    <Section id="education" title={t.section.education}>
       <ul className="divide-y divide-line">
         {education.map((e) => (
           <TimelineRow
             key={e.id}
-            period={formatPeriod(e.start_date, e.end_date, e.is_current)}
-            title={`${e.school} ${e.major} ${e.degree}`}
-            subtitle={[e.status, e.advisor && `지도교수 ${e.advisor}`].filter(Boolean).join(" · ")}
+            period={formatPeriod(e.start_date, e.end_date, e.is_current, lang)}
+            title={t.educationTitle({ school: e.school, major: e.major, degree: t.degree[e.degree] ?? e.degree })}
+            subtitle={[t.eduStatus[e.status] ?? e.status, e.advisor && t.advisor(e.advisor)].filter(Boolean).join(" · ")}
           >
-            {e.thesis_title && <p className="mt-1 text-sm text-muted">학위논문: “{e.thesis_title}”</p>}
+            {e.thesis_title && <p className="mt-1 text-sm text-muted">{t.thesis(e.thesis_title)}</p>}
           </TimelineRow>
         ))}
       </ul>
@@ -182,19 +195,19 @@ export function EducationSection({ education }: { education: Education[] }) {
   );
 }
 
-function ItemBullets({ items }: { items: EntryItem[] }) {
+function ItemBullets({ items, lang }: { items: EntryItem[]; lang: Lang }) {
   if (!items.length) return null;
   return (
     <ul className="mt-2 list-disc space-y-1 pl-5 text-sm leading-relaxed text-muted marker:text-subtle">
       {items.map((it) => (
         <li key={it.id}>
-          {it.text}
+          <Linkified text={it.text} />
           {it.metrics.length > 0 && <span className="text-fg"> ({it.metrics.join(", ")})</span>}
           {it.evidence_url && (
             <>
               {" "}
               <a href={it.evidence_url} className="text-accent hover:underline" target="_blank" rel="noopener noreferrer">
-                근거
+                {getDict(lang).evidence}
               </a>
             </>
           )}
@@ -204,20 +217,33 @@ function ItemBullets({ items }: { items: EntryItem[] }) {
   );
 }
 
-export function ExperienceSection({ experiences, items }: { experiences: Experience[]; items: EntryItem[] }) {
+export function ExperienceSection({
+  experiences,
+  items,
+  lang,
+}: {
+  experiences: Experience[];
+  items: EntryItem[];
+  lang: Lang;
+}) {
   if (!experiences.length) return null;
+  const t = getDict(lang);
   return (
-    <Section id="experiences" title="경력">
+    <Section id="experiences" title={t.section.experiences}>
       <ul className="divide-y divide-line">
         {experiences.map((e) => (
           <TimelineRow
             key={e.id}
-            period={formatPeriod(e.start_date, e.end_date, e.is_current)}
-            title={`${e.org} · ${e.title}`}
-            subtitle={EXPERIENCE_TYPE_LABEL[e.type]}
+            period={formatPeriod(e.start_date, e.end_date, e.is_current, lang)}
+            title={e.org}
+            subtitle={[e.title, t.experienceType[e.type]].filter(Boolean).join(" · ")}
           >
-            {e.description && <p className="mt-1.5 text-sm leading-relaxed text-muted">{e.description}</p>}
-            <ItemBullets items={items.filter((i) => i.parent_id === e.id)} />
+            {e.description && (
+              <p className="mt-2 text-sm leading-relaxed text-muted">
+                <Linkified text={e.description} />
+              </p>
+            )}
+            <ItemBullets items={items.filter((i) => i.parent_id === e.id)} lang={lang} />
           </TimelineRow>
         ))}
       </ul>
@@ -225,21 +251,26 @@ export function ExperienceSection({ experiences, items }: { experiences: Experie
   );
 }
 
-export function TeachingSection({ teaching }: { teaching: Experience[] }) {
+export function TeachingSection({ teaching, lang }: { teaching: Experience[]; lang: Lang }) {
   if (!teaching.length) return null;
+  const t = getDict(lang);
   return (
-    <Section id="teaching" title="교육 경력">
+    <Section id="teaching" title={t.section.teaching}>
       <ul className="divide-y divide-line">
         {teaching.map((e) => (
           <TimelineRow
             key={e.id}
-            period={e.semester || formatPeriod(e.start_date, e.end_date, e.is_current)}
+            period={e.semester || formatPeriod(e.start_date, e.end_date, e.is_current, lang)}
             title={e.course_name || e.title}
-            subtitle={[EXPERIENCE_TYPE_LABEL[e.type], e.org, e.supervisor && `담당 교수 ${e.supervisor}`]
+            subtitle={[t.experienceType[e.type], e.org, e.supervisor && t.supervisor(e.supervisor)]
               .filter(Boolean)
               .join(" · ")}
           >
-            {e.description && <p className="mt-1.5 text-sm leading-relaxed text-muted">{e.description}</p>}
+            {e.description && (
+              <p className="mt-2 text-sm leading-relaxed text-muted">
+                <Linkified text={e.description} />
+              </p>
+            )}
           </TimelineRow>
         ))}
       </ul>
@@ -249,25 +280,26 @@ export function TeachingSection({ teaching }: { teaching: Experience[] }) {
 
 /* ------------------------------------------------------------------ */
 
-export function SkillsSection({ skills, stats }: { skills: Skill[]; stats: SkillStat[] }) {
+export function SkillsSection({ skills, stats, lang }: { skills: Skill[]; stats: SkillStat[]; lang: Lang }) {
   if (!skills.length) return null;
+  const t = getDict(lang);
   const statById = new Map(stats.map((s) => [s.id, s]));
-  const categories = Object.keys(SKILL_CATEGORY_LABEL) as Skill["category"][];
+  const categories = Object.keys(t.skillCategory) as Skill["category"][];
   return (
-    <Section id="skills" title="연구방법·역량">
+    <Section id="skills" title={t.section.skills}>
       <div className="space-y-6">
         {categories.map((cat) => {
           const list = skills.filter((s) => s.category === cat);
           if (!list.length) return null;
           return (
             <div key={cat}>
-              <h3 className="mb-2 text-sm font-bold text-muted">{SKILL_CATEGORY_LABEL[cat]}</h3>
+              <h3 className="mb-2 text-sm font-bold text-muted">{t.skillCategory[cat]}</h3>
               <ul className="grid gap-2 sm:grid-cols-2">
                 {list.map((s) => {
                   const st = statById.get(s.id);
                   const meta = [
-                    st && st.evidence_count > 0 ? `근거 ${st.evidence_count}건` : null,
-                    st?.last_used ? `최근 ${formatMonth(st.last_used)}` : null,
+                    st && st.evidence_count > 0 ? t.skillEvidence(st.evidence_count) : null,
+                    st?.last_used ? t.skillRecent(formatMonth(st.last_used, lang)) : null,
                   ].filter(Boolean);
                   return (
                     <li key={s.id} className="rounded-lg border border-line bg-surface px-4 py-3">
@@ -288,10 +320,10 @@ export function SkillsSection({ skills, stats }: { skills: Skill[]; stats: Skill
   );
 }
 
-export function AwardsSection({ awards }: { awards: Award[] }) {
+export function AwardsSection({ awards, lang }: { awards: Award[]; lang: Lang }) {
   if (!awards.length) return null;
   return (
-    <Section id="awards" title="수상·장학·연구비">
+    <Section id="awards" title={getDict(lang).section.awards}>
       <ul className="divide-y divide-line">
         {awards.map((a) => (
           <TimelineRow
@@ -300,7 +332,11 @@ export function AwardsSection({ awards }: { awards: Award[] }) {
             title={a.name}
             subtitle={[a.org, a.amount].filter(Boolean).join(" · ")}
           >
-            {a.description && <p className="mt-1 text-sm text-muted">{a.description}</p>}
+            {a.description && (
+              <p className="mt-2 text-sm leading-relaxed text-muted">
+                <Linkified text={a.description} />
+              </p>
+            )}
           </TimelineRow>
         ))}
       </ul>
@@ -308,15 +344,15 @@ export function AwardsSection({ awards }: { awards: Award[] }) {
   );
 }
 
-export function ActivitiesSection({ activities }: { activities: Activity[] }) {
+export function ActivitiesSection({ activities, lang }: { activities: Activity[]; lang: Lang }) {
   if (!activities.length) return null;
   return (
-    <Section id="activities" title="학술활동">
+    <Section id="activities" title={getDict(lang).section.activities}>
       <ul className="divide-y divide-line">
         {activities.map((a) => (
           <TimelineRow
             key={a.id}
-            period={formatPeriod(a.start_date, a.end_date, a.is_current)}
+            period={formatPeriod(a.start_date, a.end_date, a.is_current, lang)}
             title={a.name}
             subtitle={[a.org, a.role].filter(Boolean).join(" · ")}
           />
@@ -328,13 +364,14 @@ export function ActivitiesSection({ activities }: { activities: Activity[] }) {
 
 /* ------------------------------------------------------------------ */
 
-const CONTACT_LINKS: { key: keyof Contacts; label: string; prefix?: string }[] = [
+const CONTACT_LINKS: { key: keyof Contacts; label?: string; prefix?: string }[] = [
   { key: "scholar", label: "Google Scholar" },
   { key: "orcid", label: "ORCID", prefix: "https://orcid.org/" },
   { key: "researchgate", label: "ResearchGate" },
   { key: "github", label: "GitHub" },
   { key: "linkedin", label: "LinkedIn" },
-  { key: "website", label: "웹사이트" },
+  // label 이 없으면 언어별 "웹사이트"
+  { key: "website" },
 ];
 
 export function contactHref(key: keyof Contacts, value: string): string {
@@ -347,23 +384,42 @@ export function encodeEmail(email: string): string {
   return Buffer.from(email, "utf8").toString("base64").split("").reverse().join("");
 }
 
-export function ContactSection({ contacts }: { contacts: Contacts }) {
+/** 소개 영역의 바로가기 줄 (이메일·Scholar·GitHub 등) */
+export function HeroLinks({ contacts, lang }: { contacts: Contacts; lang: Lang }) {
+  const links = CONTACT_LINKS.filter((c) => contacts[c.key]);
+  const t = getDict(lang);
+  const cls =
+    "inline-flex items-center gap-1.5 rounded-lg border border-line bg-surface px-3 py-2 text-sm text-muted transition-colors hover:border-accent hover:text-accent";
+  return (
+    <>
+      {contacts.email && <EmailReveal encoded={encodeEmail(contacts.email)} label={t.email} className={cls} />}
+      {links.map((c) => (
+        <a key={c.key} href={contactHref(c.key, contacts[c.key]!)} className={cls} target="_blank" rel="noopener noreferrer me">
+          {c.label ?? t.website} <ExternalMark />
+        </a>
+      ))}
+    </>
+  );
+}
+
+export function ContactSection({ contacts, lang }: { contacts: Contacts; lang: Lang }) {
   const links = CONTACT_LINKS.filter((c) => contacts[c.key]);
   if (!contacts.email && !links.length) return null;
+  const t = getDict(lang);
   return (
-    <Section id="contact" title="연락처">
+    <Section id="contact" title={t.section.contact}>
       <dl className="grid gap-3 text-sm sm:grid-cols-[9.5rem_1fr] sm:gap-x-6">
         {contacts.email && (
           <>
-            <dt className="text-subtle">이메일</dt>
+            <dt className="text-subtle">{t.email}</dt>
             <dd>
-              <EmailReveal encoded={encodeEmail(contacts.email)} />
+              <EmailReveal encoded={encodeEmail(contacts.email)} label={t.showEmail} />
             </dd>
           </>
         )}
         {links.map((c) => (
           <div key={c.key} className="contents">
-            <dt className="text-subtle">{c.label}</dt>
+            <dt className="text-subtle">{c.label ?? t.website}</dt>
             <dd>
               <a
                 href={contactHref(c.key, contacts[c.key]!)}

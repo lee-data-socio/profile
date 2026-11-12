@@ -6,6 +6,11 @@ import { getRelationOptions, getTagSuggestions } from "@/lib/admin-data";
 import { saveEntity } from "@/app/admin/actions";
 import { EntityForm } from "@/components/admin/entity-form";
 
+
+// 관리자 화면은 매 요청마다 세션을 확인하므로(adminPage → connection) 즉시 내비게이션 검증에서 제외한다.
+// layout 의 instant = false 는 page 세그먼트까지 덮지 않아 페이지마다 둔다.
+export const instant = false;
+
 export default async function NewEntityPage({ params }: PageProps<"/admin/[section]/new">) {
   await adminPage();
   const { section } = await params;

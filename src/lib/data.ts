@@ -201,9 +201,8 @@ export async function getAttachments(entityType: EntityType, entityId: string) {
   if (!db || !entityId) return [];
   const { data, error } = await db
     .from("attachments")
-    .select(
-      "id, entity_type, entity_id, display_name, original_name, description, kind, mime, size_bytes, version_type, sort_order, updated_at, created_at, visibility, storage_path, ethics_checked",
-    )
+    // 영문 컬럼(0002)이 아직 없어도 실패하지 않도록 * 로 읽는다
+    .select("*")
     .eq("entity_type", entityType)
     .eq("entity_id", entityId)
     .order("sort_order", { ascending: true })
