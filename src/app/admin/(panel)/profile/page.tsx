@@ -13,7 +13,7 @@ export default async function ProfileAdminPage() {
 
   return (
     <>
-      <h1 className="font-serif text-2xl font-bold">프로필·CV·섹션 순서</h1>
+      <h1 className="font-heading text-2xl font-bold">프로필·CV·섹션 순서</h1>
 
       <section className="mt-8">
         <h2 className="mb-3 font-bold">프로필 사진</h2>

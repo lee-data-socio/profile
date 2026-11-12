@@ -35,7 +35,7 @@ export default function AdminLayout({ children }: LayoutProps<"/admin">) {
     <div className="flex min-h-full flex-1 flex-col md:flex-row">
       <aside className="border-b border-line bg-surface md:sticky md:top-0 md:h-screen md:self-start md:overflow-y-auto md:w-60 md:shrink-0 md:border-b-0 md:border-r">
         <div className="flex items-center justify-between px-4 py-4">
-          <Link href="/admin" className="font-serif font-bold">
+          <Link href="/admin" className="font-heading font-bold">
             사이트 관리
           </Link>
           <Link href="/" className="text-xs text-accent hover:underline" target="_blank">

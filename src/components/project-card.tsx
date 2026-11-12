@@ -12,7 +12,7 @@ export function ProjectCard({ project, headingLevel = 3 }: { project: Project; h
         {formatPeriod(project.start_date, project.end_date, project.is_current)}
         {project.role && ` · ${project.role}`}
       </p>
-      <H className="mt-1.5 font-serif text-lg font-bold leading-snug">
+      <H className="mt-1.5 font-heading text-lg font-bold leading-snug">
         <Link href={`/projects/${project.slug}`} className="after:absolute after:inset-0 group-hover:text-accent">
           {project.title}
         </Link>

@@ -55,7 +55,7 @@ export function InterestsSection({
           const relPubs = publications.filter((p) => it.publication_ids.includes(p.id));
           return (
             <article key={it.id} className="rounded-xl border border-line bg-surface p-5">
-              <h3 className="font-serif text-lg font-bold">{it.title}</h3>
+              <h3 className="font-heading text-lg font-bold">{it.title}</h3>
               {it.description && <p className="mt-2 text-sm leading-relaxed text-muted">{it.description}</p>}
               {(relProjects.length > 0 || relPubs.length > 0) && (
                 <ul className="mt-3 space-y-1 text-sm">

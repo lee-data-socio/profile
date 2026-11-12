@@ -25,7 +25,7 @@ export default function LoginPage({ searchParams }: PageProps<"/admin/login">) {
   return (
     <main className="flex flex-1 items-center justify-center px-4 py-16">
       <div className="w-full max-w-sm rounded-2xl border border-line bg-surface p-6 shadow-sm">
-        <h1 className="font-serif text-xl font-bold">관리자 로그인</h1>
+        <h1 className="font-heading text-xl font-bold">관리자 로그인</h1>
         <p className="mt-1 mb-6 text-sm text-muted">이메일로 받은 링크를 눌러 로그인합니다.</p>
         <Suspense>
           <ErrorNote searchParams={searchParams} />

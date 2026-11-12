@@ -34,7 +34,7 @@ export async function generateMetadata({ params }: PageProps<"/projects/[slug]">
 function Block({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section className="mt-10">
-      <h2 className="mb-3 font-serif text-lg font-bold">{title}</h2>
+      <h2 className="mb-3 font-heading text-lg font-bold">{title}</h2>
       {children}
     </section>
   );
@@ -70,7 +70,7 @@ async function ProjectDetail({ params }: Pick<PageProps<"/projects/[slug]">, "pa
           ← 연구 프로젝트
         </Link>
       </nav>
-      <h1 className="mt-4 font-serif text-2xl font-bold leading-snug tracking-tight sm:text-3xl">{project.title}</h1>
+      <h1 className="mt-4 font-heading text-2xl font-bold leading-snug tracking-tight sm:text-3xl">{project.title}</h1>
       {project.summary && <p className="mt-3 text-lg text-muted">{project.summary}</p>}
       <div className="mt-4">
         <TagList tags={project.tags} tone="accent" />

@@ -99,7 +99,7 @@ async function PublicationDetail({ params }: Pick<PageProps<"/publications/[slug
         {PUBLICATION_TYPE_LABEL[pub.type]} · {PUB_STATUS_LABEL[pub.pub_status]}
         {pub.year && ` · ${pub.year}`}
       </p>
-      <h1 className="mt-2 font-serif text-2xl font-bold leading-snug tracking-tight sm:text-3xl">{pub.title}</h1>
+      <h1 className="mt-2 font-heading text-2xl font-bold leading-snug tracking-tight sm:text-3xl">{pub.title}</h1>
       <p className="mt-3 text-muted">
         {pub.authors.map((a, i) => (
           <span key={i}>
@@ -131,14 +131,14 @@ async function PublicationDetail({ params }: Pick<PageProps<"/publications/[slug
 
       {pub.abstract && (
         <section className="mt-10">
-          <h2 className="mb-3 font-serif text-lg font-bold">초록</h2>
+          <h2 className="mb-3 font-heading text-lg font-bold">초록</h2>
           <p className="whitespace-pre-line leading-8">{pub.abstract}</p>
         </section>
       )}
 
       {project && (
         <section className="mt-10">
-          <h2 className="mb-3 font-serif text-lg font-bold">관련 연구 프로젝트</h2>
+          <h2 className="mb-3 font-heading text-lg font-bold">관련 연구 프로젝트</h2>
           <Link href={`/projects/${project.slug}`} className="text-accent hover:underline underline-offset-4">
             {project.title}
           </Link>
@@ -147,7 +147,7 @@ async function PublicationDetail({ params }: Pick<PageProps<"/publications/[slug
 
       {files.length > 0 && (
         <section className="mt-10">
-          <h2 className="mb-3 font-serif text-lg font-bold">첨부파일</h2>
+          <h2 className="mb-3 font-heading text-lg font-bold">첨부파일</h2>
           <AttachmentList files={files} />
         </section>
       )}

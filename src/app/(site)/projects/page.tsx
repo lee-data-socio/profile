@@ -37,7 +37,7 @@ export default async function ProjectsPage() {
 
   return (
     <>
-      <h1 className="font-serif text-3xl font-bold tracking-tight">연구 프로젝트</h1>
+      <h1 className="font-heading text-3xl font-bold tracking-tight">연구 프로젝트</h1>
       <p className="mt-2 text-muted">연구과제와 개인 연구를 방법·주제·연도로 골라 볼 수 있습니다.</p>
       <div className="mt-8">
         {projects.length ? (

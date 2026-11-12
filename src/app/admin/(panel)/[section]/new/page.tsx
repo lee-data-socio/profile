@@ -18,7 +18,7 @@ export default async function NewEntityPage({ params }: PageProps<"/admin/[secti
       <Link href={`/admin/${cfg.key}`} className="text-sm text-accent hover:underline">
         ← {cfg.label}
       </Link>
-      <h1 className="mb-6 mt-2 font-serif text-2xl font-bold">새 {cfg.label}</h1>
+      <h1 className="mb-6 mt-2 font-heading text-2xl font-bold">새 {cfg.label}</h1>
       <EntityForm
         config={cfg}
         initial={{ visibility: "draft", ...(cfg.defaults ?? {}) }}

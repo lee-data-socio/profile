@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { cacheLife } from "next/cache";
-import { Noto_Sans_KR, Noto_Serif_KR } from "next/font/google";
+import { Noto_Sans_KR } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { SITE_URL } from "@/lib/env";
 import { getProfile } from "@/lib/data";
@@ -14,12 +14,6 @@ const sans = Noto_Sans_KR({
   preload: false,
 });
 
-const serif = Noto_Serif_KR({
-  variable: "--font-serif-kr",
-  weight: ["600", "700"],
-  display: "swap",
-  preload: false,
-});
 
 export async function generateMetadata(): Promise<Metadata> {
   // URL 객체는 "use cache" 결과로 직렬화할 수 없어 바깥에서 붙인다
@@ -56,7 +50,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="ko" className={`${sans.variable} ${serif.variable} h-full antialiased`}>
+    <html lang="ko" className={`${sans.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col">
         {children}
         {/* Vercel 대시보드에서 Web Analytics 를 켠 뒤 NEXT_PUBLIC_ENABLE_ANALYTICS=1 로 활성화 */}

@@ -16,7 +16,7 @@ export async function SiteHeader() {
         본문으로 건너뛰기
       </a>
       <div className="mx-auto flex max-w-4xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
-        <Link href="/" className="font-serif text-base font-bold tracking-tight sm:text-lg">
+        <Link href="/" className="font-heading text-base font-bold tracking-tight sm:text-lg">
           {profile.name}
         </Link>
         <nav aria-label="주 메뉴" className="flex items-center gap-1 text-sm sm:gap-2">

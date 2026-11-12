@@ -105,7 +105,7 @@ export default async function HomePage() {
 
       <section aria-labelledby="intro" className="flex flex-col-reverse gap-8 sm:flex-row sm:items-start sm:justify-between">
         <div className="max-w-2xl">
-          <h1 id="intro" className="font-serif text-3xl font-bold tracking-tight sm:text-4xl">
+          <h1 id="intro" className="font-heading text-3xl font-bold tracking-tight sm:text-4xl">
             {profile.name}
             {profile.name_en && <span className="ml-3 align-middle text-lg font-normal text-subtle">{profile.name_en}</span>}
           </h1>

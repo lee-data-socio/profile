@@ -47,7 +47,7 @@ export default async function EditEntityPage({ params, searchParams }: PageProps
         ← {cfg.label}
       </Link>
       <div className="mb-6 mt-2 flex flex-wrap items-baseline justify-between gap-2">
-        <h1 className="font-serif text-2xl font-bold">{title || "(제목 없음)"}</h1>
+        <h1 className="font-heading text-2xl font-bold">{title || "(제목 없음)"}</h1>
         <p className="text-xs text-subtle">
           마지막 저장 {formatDate(row.updated_at)}
           {publicHref && (

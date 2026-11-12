@@ -8,7 +8,7 @@ export default async function AdminHome() {
   const counts = await getCounts();
   return (
     <>
-      <h1 className="font-serif text-2xl font-bold">대시보드</h1>
+      <h1 className="font-heading text-2xl font-bold">대시보드</h1>
       <p className="mt-1 text-sm text-muted">
         저장하면 재배포 없이 공개 페이지에 바로 반영됩니다. 초안·비공개 항목은 공개 페이지에 나오지 않습니다.
       </p>

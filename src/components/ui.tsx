@@ -30,7 +30,7 @@ export function TagList({ tags, tone }: { tags: string[]; tone?: "default" | "ac
 export function SectionHeading({ id, children, action }: { id: string; children: ReactNode; action?: ReactNode }) {
   return (
     <div className="mb-5 flex items-baseline justify-between gap-4 border-b border-line pb-2">
-      <h2 id={id} className="font-serif text-xl font-bold tracking-tight sm:text-2xl">
+      <h2 id={id} className="font-heading text-xl font-bold tracking-tight sm:text-2xl">
         {children}
       </h2>
       {action}

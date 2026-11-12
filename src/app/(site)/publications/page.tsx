@@ -22,7 +22,7 @@ export default async function PublicationsPage() {
 
   return (
     <>
-      <h1 className="font-serif text-3xl font-bold tracking-tight">논문·학술발표</h1>
+      <h1 className="font-heading text-3xl font-bold tracking-tight">논문·학술발표</h1>
       <p className="mt-2 text-muted">ASA 인용 형식, 유형별·연도 역순. 굵은 이름이 본인입니다.</p>
       {groups.length ? (
         <nav aria-label="유형 바로가기" className="no-print mt-6 flex flex-wrap gap-2 text-sm">
@@ -39,7 +39,7 @@ export default async function PublicationsPage() {
       )}
       {groups.map((g) => (
         <section key={g.type} aria-labelledby={g.type} className="mt-10 scroll-mt-20">
-          <h2 id={g.type} className="border-b border-line pb-2 font-serif text-xl font-bold">
+          <h2 id={g.type} className="border-b border-line pb-2 font-heading text-xl font-bold">
             {PUBLICATION_TYPE_LABEL[g.type]}
           </h2>
           <ul className="divide-y divide-line">
