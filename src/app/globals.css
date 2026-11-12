@@ -1,0 +1,145 @@
+@import "tailwindcss";
+
+/* 다크 모드: 시스템 설정을 따른다 (P-11) */
+@custom-variant dark (@media (prefers-color-scheme: dark));
+
+:root {
+  --bg: #fbfaf7;
+  --surface: #ffffff;
+  --fg: #1c1d1f;
+  --muted: #5d6066;
+  --subtle: #8a8d93;
+  --line: #e6e3dc;
+  --accent: #1f4e79;
+  --accent-soft: #e8eef5;
+  --danger: #b42318;
+  --success: #067647;
+  --warn: #b54708;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #121315;
+    --surface: #1a1c1f;
+    --fg: #e9e7e2;
+    --muted: #a7a9ae;
+    --subtle: #7d8086;
+    --line: #2c2f33;
+    --accent: #8db7e0;
+    --accent-soft: #1d2a38;
+    --danger: #f97066;
+    --success: #47cd89;
+    --warn: #fdb022;
+  }
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-subtle: var(--subtle);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-danger: var(--danger);
+  --color-success: var(--success);
+  --color-warn: var(--warn);
+  --font-sans: var(--font-sans-kr), ui-sans-serif, system-ui, -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  --font-serif: var(--font-serif-kr), ui-serif, Georgia, "AppleMyungjo", serif;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* 리치텍스트 본문 */
+.prose-content {
+  line-height: 1.8;
+}
+.prose-content > * + * {
+  margin-top: 0.75em;
+}
+.prose-content h3 {
+  font-family: var(--font-serif);
+  font-size: 1.125rem;
+  font-weight: 700;
+  margin-top: 1.4em;
+}
+.prose-content h4 {
+  font-weight: 700;
+  margin-top: 1.2em;
+}
+.prose-content ul {
+  list-style: disc;
+  padding-left: 1.4em;
+}
+.prose-content ol {
+  list-style: decimal;
+  padding-left: 1.4em;
+}
+.prose-content li + li {
+  margin-top: 0.25em;
+}
+.prose-content a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.prose-content blockquote {
+  border-left: 3px solid var(--line);
+  padding-left: 1em;
+  color: var(--muted);
+}
+
+/* Tiptap 편집기 */
+.tiptap {
+  min-height: 8rem;
+  outline: none;
+}
+.tiptap p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  color: var(--subtle);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
+/* 인쇄용 스타일 (P-09) */
+@media print {
+  :root {
+    --bg: #fff;
+    --surface: #fff;
+    --fg: #000;
+    --muted: #333;
+    --line: #ccc;
+    --accent: #000;
+  }
+  .no-print {
+    display: none !important;
+  }
+  a {
+    color: inherit !important;
+    text-decoration: none !important;
+  }
+  section {
+    break-inside: avoid-page;
+  }
+  body {
+    font-size: 11pt;
+  }
+}

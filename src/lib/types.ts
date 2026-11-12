@@ -1,0 +1,226 @@
+export type Visibility = "draft" | "public" | "private";
+
+/** Tiptap JSON 문서 */
+export type RichDoc = {
+  type: string;
+  attrs?: Record<string, unknown>;
+  content?: RichDoc[];
+  marks?: { type: string; attrs?: Record<string, unknown> }[];
+  text?: string;
+};
+
+type Base = {
+  id: string;
+  visibility: Visibility;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+};
+
+export type SectionKey =
+  | "interests"
+  | "education"
+  | "publications"
+  | "projects"
+  | "experiences"
+  | "teaching"
+  | "skills"
+  | "awards"
+  | "activities"
+  | "contact";
+
+export type SectionOrderEntry = { key: SectionKey; visible: boolean };
+
+export type Contacts = {
+  email?: string;
+  scholar?: string;
+  orcid?: string;
+  researchgate?: string;
+  github?: string;
+  linkedin?: string;
+  website?: string;
+};
+
+export type Profile = Base & {
+  name: string;
+  name_en: string | null;
+  headline: string | null;
+  headline_en: string | null;
+  bio: RichDoc | null;
+  bio_en: RichDoc | null;
+  interests: string[];
+  contacts: Contacts;
+  photo_path: string | null;
+  cv_attachment_id: string | null;
+  section_order: SectionOrderEntry[];
+};
+
+export type ResearchInterest = Base & {
+  title: string;
+  title_en: string | null;
+  description: string | null;
+  description_en: string | null;
+  project_ids: string[];
+  publication_ids: string[];
+};
+
+export type Education = Base & {
+  school: string;
+  school_en: string | null;
+  major: string;
+  major_en: string | null;
+  degree: string;
+  start_date: string;
+  end_date: string | null;
+  is_current: boolean;
+  status: string;
+  advisor: string | null;
+  thesis_title: string | null;
+  thesis_title_en: string | null;
+};
+
+export type Author = { name: string; is_me?: boolean };
+
+export type PublicationType =
+  | "journal"
+  | "thesis"
+  | "conference"
+  | "report"
+  | "working_paper"
+  | "book_chapter";
+
+export type PubStatus = "published" | "accepted" | "under_review" | "in_preparation" | "presented";
+
+export type Publication = Base & {
+  slug: string;
+  type: PublicationType;
+  authors: Author[];
+  title: string;
+  title_en: string | null;
+  venue: string | null;
+  volume: string | null;
+  issue: string | null;
+  pages: string | null;
+  year: number | null;
+  pub_status: PubStatus;
+  doi: string | null;
+  url: string | null;
+  abstract: string | null;
+  abstract_en: string | null;
+  project_id: string | null;
+};
+
+export type Approach = "quantitative" | "qualitative" | "mixed";
+
+export type Project = Base & {
+  slug: string;
+  title: string;
+  title_en: string | null;
+  summary: string | null;
+  summary_en: string | null;
+  start_date: string;
+  end_date: string | null;
+  is_current: boolean;
+  org: string | null;
+  funder: string | null;
+  role: string | null;
+  approach: Approach | null;
+  research_question: RichDoc | null;
+  methods: string[];
+  data_sources: string[];
+  findings: RichDoc | null;
+  tools: string[];
+  tags: string[];
+};
+
+export type ExperienceType = "RA" | "TA" | "intern" | "job" | "lecture" | "other";
+
+export type Experience = Base & {
+  org: string;
+  org_en: string | null;
+  title: string;
+  title_en: string | null;
+  type: ExperienceType;
+  start_date: string;
+  end_date: string | null;
+  is_current: boolean;
+  description: string | null;
+  description_en: string | null;
+  course_name: string | null;
+  semester: string | null;
+  supervisor: string | null;
+};
+
+export type EntryItem = Base & {
+  parent_type: "project" | "experience";
+  parent_id: string;
+  text: string;
+  text_en: string | null;
+  metrics: string[];
+  evidence_url: string | null;
+  tags: string[];
+  last_used: string | null;
+};
+
+export type SkillCategory = "quantitative" | "qualitative" | "survey_design" | "tool" | "language";
+
+export type Skill = Base & {
+  name: string;
+  category: SkillCategory;
+  description: string | null;
+  description_en: string | null;
+};
+
+export type SkillStat = {
+  id: string;
+  name: string;
+  category: SkillCategory;
+  evidence_count: number;
+  first_used: string | null;
+  last_used: string | null;
+};
+
+export type Award = Base & {
+  name: string;
+  name_en: string | null;
+  org: string | null;
+  year: number | null;
+  amount: string | null;
+  description: string | null;
+};
+
+export type Activity = Base & {
+  name: string;
+  name_en: string | null;
+  org: string | null;
+  role: string | null;
+  start_date: string | null;
+  end_date: string | null;
+  is_current: boolean;
+};
+
+export type EntityType = "project" | "publication" | "experience" | "profile";
+
+export type AttachmentKind =
+  | "paper"
+  | "report"
+  | "slides"
+  | "poster"
+  | "questionnaire"
+  | "codebook"
+  | "cv"
+  | "other";
+
+export type Attachment = Base & {
+  entity_type: EntityType;
+  entity_id: string;
+  storage_path: string;
+  display_name: string;
+  original_name: string;
+  description: string | null;
+  kind: AttachmentKind;
+  mime: string;
+  size_bytes: number;
+  version_type: "published" | "preprint" | null;
+  ethics_checked: boolean;
+};
