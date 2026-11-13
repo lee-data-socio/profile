@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { Analytics } from "@vercel/analytics/next";
 import { SITE_URL } from "@/lib/env";
 import { getProfile } from "@/lib/data";
-import { getDict, isLang, LANGS, localizeProfile, type Lang } from "@/lib/i18n";
+import { getDict, isLang, LANGS, localizeProfile, siteTitle, type Lang } from "@/lib/i18n";
 import { richToPlain } from "@/components/rich-text";
 import { rootViewport, sans } from "../fonts";
 import "../globals.css";
@@ -34,11 +34,11 @@ async function siteMetadata(lang: Lang): Promise<Metadata> {
   const description =
     profile.headline || richToPlain(profile.bio).slice(0, 160) || t.siteDescription(profile.name);
   return {
-    title: { default: title, template: `%s | ${profile.name}` },
+    title: { default: title, template: `%s | ${siteTitle(profile)}` },
     description,
     openGraph: {
       type: "profile",
-      siteName: profile.name,
+      siteName: siteTitle(profile),
       title,
       description,
       locale: t.locale,

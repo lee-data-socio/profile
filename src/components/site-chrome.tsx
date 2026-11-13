@@ -30,6 +30,7 @@ import {
   localizePublication,
   localizeSkill,
   sectionHref,
+  siteTitle,
   type Lang,
 } from "@/lib/i18n";
 import type { SectionKey } from "@/lib/types";
@@ -91,7 +92,7 @@ export async function SiteHeader({ lang }: { lang: Lang }) {
           href={localePath(lang, "/")}
           className="mr-auto shrink-0 font-heading text-base font-bold tracking-tight sm:text-lg"
         >
-          {profile.name}
+          {siteTitle(profile)}
         </Link>
         {/* 섹션 메뉴: 모바일에서는 아래 줄에서 가로로 밀어 보고, 넓은 화면에서는 오른쪽에 줄바꿈해 놓는다 */}
         <nav

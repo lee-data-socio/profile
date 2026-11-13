@@ -359,6 +359,10 @@ export async function saveProfile(_prev: FormState, fd: FormData): Promise<FormS
       bio_en: bioEn && !isEmptyRich(bioEn) ? bioEn : null,
       interests: cleanTags(parseJson(str(fd, "interests"), [])),
       interests_en: cleanTags(parseJson(str(fd, "interests_en"), [])),
+      // 0003_site_title.sql 을 실행해 컬럼이 있을 때만 폼에 이 칸이 나온다
+      ...(fd.has("site_title")
+        ? { site_title: str(fd, "site_title") || null, site_title_en: str(fd, "site_title_en") || null }
+        : {}),
       contacts,
     })
     .eq("singleton", true);

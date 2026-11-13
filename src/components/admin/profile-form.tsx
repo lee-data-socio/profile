@@ -47,6 +47,33 @@ export function ProfileForm({
         <FieldShell id="p-name_en" label="이름 (영문)" help="영문 페이지(/en)에 쓰입니다. 비우면 한글 이름이 그대로 나옵니다.">
           <input id="p-name_en" name="name_en" defaultValue={profile.name_en ?? ""} className={inputCls} placeholder="Sangwon Lee" />
         </FieldShell>
+        {"site_title" in profile ? (
+          <>
+            <FieldShell id="p-site_title" label="사이트 이름" help="헤더 왼쪽 위와 브라우저 탭 제목에 쓰입니다. 비우면 이름이 나옵니다.">
+              <input
+                id="p-site_title"
+                name="site_title"
+                defaultValue={profile.site_title ?? ""}
+                className={inputCls}
+                placeholder="예: 사회학 연구 노트"
+              />
+            </FieldShell>
+            <FieldShell id="p-site_title_en" label="사이트 이름 (영문)" help="비우면 영문 이름이 나옵니다.">
+              <input
+                id="p-site_title_en"
+                name="site_title_en"
+                defaultValue={profile.site_title_en ?? ""}
+                className={inputCls}
+                placeholder="Research Notes"
+              />
+            </FieldShell>
+          </>
+        ) : (
+          <p className="rounded-lg border border-dashed border-line p-3 text-sm text-muted sm:col-span-2">
+            사이트 이름을 따로 지정하려면 Supabase SQL Editor 에서 <code>supabase/migrations/0003_site_title.sql</code> 을
+            실행하세요. 그 전까지 헤더에는 이름이 나옵니다.
+          </p>
+        )}
         <FieldShell id="p-headline" label="헤드라인" className="sm:col-span-2" help="예: OO대학교 사회학과 석사과정 · 노동·불평등·조사방법">
           <input id="p-headline" name="headline" defaultValue={profile.headline ?? ""} className={inputCls} />
         </FieldShell>

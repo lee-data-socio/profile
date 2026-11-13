@@ -51,6 +51,9 @@ export type Profile = Base & {
   interests: string[];
   /** 0002_english_fields.sql 실행 전에는 없을 수 있다 */
   interests_en?: string[];
+  /** 헤더에 보이는 사이트 이름. 0003_site_title.sql 실행 전에는 없다 */
+  site_title?: string | null;
+  site_title_en?: string | null;
   contacts: Contacts;
   photo_path: string | null;
   cv_attachment_id: string | null;

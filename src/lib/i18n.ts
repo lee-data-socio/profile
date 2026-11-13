@@ -379,7 +379,13 @@ export function localizeProfile(p: Profile, lang: Lang): Profile {
     headline: enText(p.headline_en, p.headline),
     bio: p.bio_en,
     interests: p.interests_en ?? [],
+    site_title: enText(p.site_title_en, p.site_title),
   };
+}
+
+/** 헤더·탭 제목에 쓰는 사이트 이름 (localizeProfile 을 거친 값). 지정하지 않았으면 이름. */
+export function siteTitle(p: Profile): string {
+  return p.site_title?.trim() || p.name;
 }
 
 export function localizeInterest(r: ResearchInterest, lang: Lang): ResearchInterest | null {
