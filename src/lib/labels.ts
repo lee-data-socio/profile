@@ -22,7 +22,7 @@ export const SECTION_LABEL: Record<SectionKey, string> = {
   publications: "논문·학술발표",
   projects: "연구 프로젝트",
   experiences: "경력",
-  teaching: "교육 경력",
+  teaching: "교육 이수",
   skills: "연구방법·역량",
   awards: "수상·장학·연구비",
   activities: "학술활동",
@@ -97,7 +97,7 @@ export const EXPERIENCE_TYPE_LABEL: Record<ExperienceType, string> = {
   TA: "교육조교",
   intern: "인턴",
   job: "직장",
-  lecture: "강의",
+  lecture: "교육 과정",
   other: "기타",
 };
 

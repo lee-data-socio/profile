@@ -51,6 +51,19 @@ export function localePath(lang: Lang, path: string): string {
   return path === "/" ? "/en" : `/en${path}`;
 }
 
+/** 별도 페이지가 있는 섹션. 나머지 섹션은 홈의 #앵커로 이동한다. */
+const SECTION_PAGE: Partial<Record<SectionKey, string>> = {
+  publications: "/publications",
+  projects: "/projects",
+  experiences: "/experience",
+  teaching: "/training",
+};
+
+export function sectionHref(lang: Lang, key: SectionKey): string {
+  const page = SECTION_PAGE[key];
+  return page ? localePath(lang, page) : `${localePath(lang, "/")}#${key}`;
+}
+
 /** 두 언어 페이지가 모두 있을 때 hreflang 대체 주소 (x-default 는 한국어) */
 export function languageAlternates(path: string) {
   return { ko: path, en: localePath("en", path), "x-default": path };
@@ -83,8 +96,6 @@ const ko = {
 
   skipToContent: "본문으로 건너뛰기",
   mainNav: "주 메뉴",
-  navProjects: "프로젝트",
-  navPublications: "논문·발표",
   cvDownloadSr: " 다운로드",
   cvDownload: "CV 다운로드",
   lastUpdated: "마지막 업데이트",
@@ -94,6 +105,9 @@ const ko = {
   siteDescription: (name: string) => `${name}의 연구·경력 포트폴리오`,
 
   more: (n: number) => `전체 ${n}건`,
+  details: "자세히 보기",
+  experiencesDescription: "연구조교·인턴·직장 경력과 맡은 업무",
+  teachingDescription: "이수한 교육 과정과 부트캠프",
   relProject: "프로젝트",
   relPublication: "논문",
   advisor: (name: string) => `지도교수 ${name}`,
@@ -110,6 +124,7 @@ const ko = {
   projectsDescription: "수행한 연구과제와 개인 연구 프로젝트 목록",
   projectsIntro: "연구과제와 개인 연구를 방법·주제·연도로 골라 볼 수 있습니다.",
   projectsEmpty: "아직 공개된 프로젝트가 없습니다.",
+  listEmpty: "아직 공개된 항목이 없습니다.",
   filter: {
     group: "프로젝트 필터",
     approach: "방법",
@@ -179,7 +194,7 @@ const en: Dict = {
     publications: "Publications",
     projects: "Research Projects",
     experiences: "Experience",
-    teaching: "Teaching",
+    teaching: "Training",
     skills: "Methods & Skills",
     awards: "Honors, Scholarships & Grants",
     activities: "Academic Activities",
@@ -210,7 +225,7 @@ const en: Dict = {
     TA: "Teaching Assistant",
     intern: "Intern",
     job: "Employment",
-    lecture: "Instructor",
+    lecture: "Course",
     other: "Other",
   } satisfies Record<ExperienceType, string>,
   skillCategory: {
@@ -237,8 +252,6 @@ const en: Dict = {
 
   skipToContent: "Skip to content",
   mainNav: "Main menu",
-  navProjects: "Projects",
-  navPublications: "Publications",
   cvDownloadSr: " download",
   cvDownload: "Download CV",
   lastUpdated: "Last updated",
@@ -248,6 +261,9 @@ const en: Dict = {
   siteDescription: (name) => `Research and career portfolio of ${name}`,
 
   more: (n) => `All ${n}`,
+  details: "Details",
+  experiencesDescription: "Research assistantships, internships, and employment",
+  teachingDescription: "Completed training programs and bootcamps",
   relProject: "Project",
   relPublication: "Paper",
   advisor: (name) => `Advisor: ${name}`,
@@ -264,6 +280,7 @@ const en: Dict = {
   projectsDescription: "Funded research projects and independent research",
   projectsIntro: "Browse funded and independent research by method, topic, and year.",
   projectsEmpty: "No projects have been published yet.",
+  listEmpty: "Nothing has been published here yet.",
   filter: {
     group: "Project filters",
     approach: "Method",

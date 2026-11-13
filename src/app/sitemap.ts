@@ -23,6 +23,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...entries("/", true, { lastModified: profile.updated_at || undefined, priority: 1 }),
     ...entries("/projects", true, { priority: 0.8 }),
     ...entries("/publications", true, { priority: 0.8 }),
+    ...entries("/experience", true, { priority: 0.7 }),
+    ...entries("/training", true, { priority: 0.7 }),
     ...projects.flatMap((p) =>
       entries(`/projects/${p.slug}`, Boolean(localizeProject(p, "en")), { lastModified: p.updated_at, priority: 0.6 }),
     ),

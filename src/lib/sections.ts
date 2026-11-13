@@ -61,7 +61,7 @@ export type SectionConfig = {
   attachEntity?: "project" | "publication" | "experience";
   /** 업무 항목(사실 단위) 입력 (A-03) */
   itemsParent?: "project" | "experience";
-  /** experiences 테이블을 경력/교육 경력으로 나눌 때 type 필터 */
+  /** experiences 테이블을 경력/교육 이수로 나눌 때 type 필터 */
   typeFilter?: { column: string; values: string[] };
   defaults?: Record<string, unknown>;
 };
@@ -278,16 +278,16 @@ export const SECTIONS: Record<AdminSectionKey, SectionConfig> = {
   teaching: {
     key: "teaching",
     table: "experiences",
-    label: "교육 경력",
-    description: "교육조교(TA), 강의",
+    label: "교육 이수",
+    description: "부트캠프·교육 과정 이수 (교육조교 경력도 여기에)",
     titleField: "course_name",
     subtitleFields: ["semester", "title"],
     dateRange: ["start_date", "end_date"],
     attachEntity: "experience",
     typeFilter: { column: "type", values: TEACHING_TYPES },
     fields: [
-      { name: "course_name", label: "과목명", type: "text", required: true },
-      { name: "course_name_en", label: "과목명 (영문)", type: "text", help: EN_REQUIRED_HELP },
+      { name: "course_name", label: "과정명", type: "text", required: true },
+      { name: "course_name_en", label: "과정명 (영문)", type: "text", help: EN_REQUIRED_HELP },
       {
         name: "type",
         label: "유형",
@@ -296,25 +296,25 @@ export const SECTIONS: Record<AdminSectionKey, SectionConfig> = {
         half: true,
         options: TEACHING_TYPES.map((v) => ({ value: v, label: EXPERIENCE_TYPE_LABEL[v as keyof typeof EXPERIENCE_TYPE_LABEL] })),
       },
-      { name: "title", label: "역할", type: "text", required: true, half: true, suggestions: ["교육조교", "강사", "튜터"] },
+      { name: "title", label: "역할", type: "text", required: true, half: true, suggestions: ["수료", "수강생", "교육조교"] },
       {
         name: "title_en",
         label: "역할 (영문)",
         type: "text",
         half: true,
-        suggestions: ["Teaching Assistant", "Instructor", "Tutor"],
+        suggestions: ["Completed", "Participant", "Teaching Assistant"],
       },
       { name: "org", label: "학교·기관", type: "text", required: true, half: true },
       { name: "org_en", label: "학교·기관 (영문)", type: "text", half: true },
-      { name: "semester", label: "학기", type: "text", half: true, placeholder: "2026-1학기" },
-      { name: "semester_en", label: "학기 (영문)", type: "text", half: true, placeholder: "Spring 2026" },
+      { name: "semester", label: "기수·학기", type: "text", half: true, placeholder: "7기" },
+      { name: "semester_en", label: "기수·학기 (영문)", type: "text", half: true, placeholder: "Cohort 7" },
       { name: "supervisor", label: "담당 교수", type: "text", half: true },
       { name: "supervisor_en", label: "담당 교수 (영문)", type: "text", half: true },
       ...period(),
       { name: "description", label: "설명", type: "textarea" },
       { name: "description_en", label: "설명 (영문)", type: "textarea" },
     ],
-    defaults: { type: "TA", title: "교육조교" },
+    defaults: { type: "lecture", title: "수료" },
   },
 
   skills: {

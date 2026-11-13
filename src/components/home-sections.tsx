@@ -14,7 +14,7 @@ import type {
   SkillStat,
 } from "@/lib/types";
 import { formatMonth, formatPeriod } from "@/lib/format";
-import { getDict, localePath, type Lang } from "@/lib/i18n";
+import { getDict, localePath, sectionHref, type Lang } from "@/lib/i18n";
 import { EmptyNote, ExternalMark, Linkified, Section } from "@/components/ui";
 import { ProjectCard } from "@/components/project-card";
 import { PublicationItem } from "@/components/publication-item";
@@ -59,7 +59,7 @@ export function InterestsSection({
               <h3 className="font-heading text-base font-bold leading-snug sm:text-[1.0625rem]">{it.title}</h3>
               <div className="min-w-0">
                 {it.description && (
-                  <p className="text-[15px] leading-7 text-muted">
+                  <p className="text-[15px] leading-7 text-muted whitespace-pre-line">
                     <Linkified text={it.description} />
                   </p>
                 )}
@@ -141,7 +141,7 @@ export function ProjectsSection({ projects, lang }: { projects: Project[]; lang:
       <ul className={`grid gap-4 ${shown.length > 1 ? "sm:grid-cols-2" : ""}`}>
         {shown.map((p) => (
           <li key={p.id}>
-            <ProjectCard project={p} lang={lang} />
+            <ProjectCard project={p} lang={lang} compact />
           </li>
         ))}
       </ul>
@@ -155,18 +155,21 @@ function TimelineRow({
   period,
   title,
   subtitle,
+  headingLevel = 3,
   children,
 }: {
   period: string;
   title: ReactNode;
   subtitle?: ReactNode;
+  headingLevel?: 2 | 3;
   children?: ReactNode;
 }) {
+  const H = headingLevel === 2 ? "h2" : "h3";
   return (
     <li className="grid gap-1 py-5 first:pt-1 sm:grid-cols-[9.5rem_1fr] sm:gap-6">
       <p className="text-sm tabular-nums text-subtle sm:pt-0.5">{period}</p>
       <div className="min-w-0">
-        <h3 className="font-heading font-bold leading-snug">{title}</h3>
+        <H className="font-heading font-bold leading-snug">{title}</H>
         {subtitle && <p className="mt-1 text-sm text-muted">{subtitle}</p>}
         {children}
       </div>
@@ -217,6 +220,41 @@ function ItemBullets({ items, lang }: { items: EntryItem[]; lang: Lang }) {
   );
 }
 
+/** 경력 목록. detailed 이면 설명·업무 항목까지 보여 준다 (홈은 요약, /experience 는 전체). */
+export function ExperienceList({
+  experiences,
+  items,
+  lang,
+  detailed = false,
+}: {
+  experiences: Experience[];
+  items: EntryItem[];
+  lang: Lang;
+  detailed?: boolean;
+}) {
+  const t = getDict(lang);
+  return (
+    <ul className="divide-y divide-line">
+      {experiences.map((e) => (
+        <TimelineRow
+          key={e.id}
+          period={formatPeriod(e.start_date, e.end_date, e.is_current, lang)}
+          title={e.org}
+          subtitle={[e.title, t.experienceType[e.type]].filter(Boolean).join(" · ")}
+          headingLevel={detailed ? 2 : 3}
+        >
+          {detailed && e.description && (
+            <p className="mt-2 text-sm leading-relaxed text-muted whitespace-pre-line">
+              <Linkified text={e.description} />
+            </p>
+          )}
+          {detailed && <ItemBullets items={items.filter((i) => i.parent_id === e.id)} lang={lang} />}
+        </TimelineRow>
+      ))}
+    </ul>
+  );
+}
+
 export function ExperienceSection({
   experiences,
   items,
@@ -228,26 +266,39 @@ export function ExperienceSection({
 }) {
   if (!experiences.length) return null;
   const t = getDict(lang);
+  const hasDetail = experiences.some((e) => e.description) || items.some((i) => experiences.some((e) => e.id === i.parent_id));
   return (
-    <Section id="experiences" title={t.section.experiences}>
-      <ul className="divide-y divide-line">
-        {experiences.map((e) => (
-          <TimelineRow
-            key={e.id}
-            period={formatPeriod(e.start_date, e.end_date, e.is_current, lang)}
-            title={e.org}
-            subtitle={[e.title, t.experienceType[e.type]].filter(Boolean).join(" · ")}
-          >
-            {e.description && (
-              <p className="mt-2 text-sm leading-relaxed text-muted">
-                <Linkified text={e.description} />
-              </p>
-            )}
-            <ItemBullets items={items.filter((i) => i.parent_id === e.id)} lang={lang} />
-          </TimelineRow>
-        ))}
-      </ul>
+    <Section
+      id="experiences"
+      title={t.section.experiences}
+      action={hasDetail && <MoreLink href={sectionHref(lang, "experiences")}>{t.details}</MoreLink>}
+    >
+      <ExperienceList experiences={experiences} items={items} lang={lang} />
     </Section>
+  );
+}
+
+/** 교육 이수 목록. detailed 이면 설명까지 보여 준다 (홈은 요약, /training 은 전체). */
+export function TeachingList({ teaching, lang, detailed = false }: { teaching: Experience[]; lang: Lang; detailed?: boolean }) {
+  const t = getDict(lang);
+  return (
+    <ul className="divide-y divide-line">
+      {teaching.map((e) => (
+        <TimelineRow
+          key={e.id}
+          period={e.semester || formatPeriod(e.start_date, e.end_date, e.is_current, lang)}
+          title={e.course_name || e.title}
+          subtitle={[e.title, e.org, e.supervisor && t.supervisor(e.supervisor)].filter(Boolean).join(" · ")}
+          headingLevel={detailed ? 2 : 3}
+        >
+          {detailed && e.description && (
+            <p className="mt-2 text-sm leading-relaxed text-muted whitespace-pre-line">
+              <Linkified text={e.description} />
+            </p>
+          )}
+        </TimelineRow>
+      ))}
+    </ul>
   );
 }
 
@@ -255,25 +306,12 @@ export function TeachingSection({ teaching, lang }: { teaching: Experience[]; la
   if (!teaching.length) return null;
   const t = getDict(lang);
   return (
-    <Section id="teaching" title={t.section.teaching}>
-      <ul className="divide-y divide-line">
-        {teaching.map((e) => (
-          <TimelineRow
-            key={e.id}
-            period={e.semester || formatPeriod(e.start_date, e.end_date, e.is_current, lang)}
-            title={e.course_name || e.title}
-            subtitle={[t.experienceType[e.type], e.org, e.supervisor && t.supervisor(e.supervisor)]
-              .filter(Boolean)
-              .join(" · ")}
-          >
-            {e.description && (
-              <p className="mt-2 text-sm leading-relaxed text-muted">
-                <Linkified text={e.description} />
-              </p>
-            )}
-          </TimelineRow>
-        ))}
-      </ul>
+    <Section
+      id="teaching"
+      title={t.section.teaching}
+      action={teaching.some((e) => e.description) && <MoreLink href={sectionHref(lang, "teaching")}>{t.details}</MoreLink>}
+    >
+      <TeachingList teaching={teaching} lang={lang} />
     </Section>
   );
 }
@@ -307,7 +345,7 @@ export function SkillsSection({ skills, stats, lang }: { skills: Skill[]; stats:
                         {s.name}
                         {meta.length > 0 && <span className="ml-2 text-xs font-normal text-subtle">{meta.join(" · ")}</span>}
                       </p>
-                      {s.description && <p className="mt-1 text-sm text-muted">{s.description}</p>}
+                      {s.description && <p className="mt-1 text-sm text-muted whitespace-pre-line">{s.description}</p>}
                     </li>
                   );
                 })}
@@ -333,7 +371,7 @@ export function AwardsSection({ awards, lang }: { awards: Award[]; lang: Lang })
             subtitle={[a.org, a.amount].filter(Boolean).join(" · ")}
           >
             {a.description && (
-              <p className="mt-2 text-sm leading-relaxed text-muted">
+              <p className="mt-2 text-sm leading-relaxed text-muted whitespace-pre-line">
                 <Linkified text={a.description} />
               </p>
             )}
